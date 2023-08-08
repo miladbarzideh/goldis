@@ -3,14 +3,17 @@ package network
 import (
 	"log"
 	"syscall"
+
+	"github.com/miladbarzideh/goldis/internal/command"
 )
 
 // ConnectionHandler handles the connection management logic
 type ConnectionHandler struct {
-	socket   *Socket
-	fdMax    int
-	activeFD syscall.FdSet
-	fdConn   FdConn
+	socket         *Socket
+	fdMax          int
+	activeFD       syscall.FdSet
+	fdConn         FdConn
+	commandHandler *command.Handler
 }
 
 // NewConnectionHandler creates a new instance of ConnectionManager
@@ -21,10 +24,11 @@ func NewConnectionHandler(socket *Socket) *ConnectionHandler {
 	FDSet(serverFd, &activeFd)
 	fdConn := FDConnInit()
 	return &ConnectionHandler{
-		socket:   socket,
-		fdMax:    serverFd,
-		activeFD: activeFd,
-		fdConn:   fdConn,
+		socket:         socket,
+		fdMax:          serverFd,
+		activeFD:       activeFd,
+		fdConn:         fdConn,
+		commandHandler: command.NewHandler(),
 	}
 }
 
@@ -56,14 +60,22 @@ func (cm *ConnectionHandler) destroyConnection(connection Connection) {
 }
 
 func (cm *ConnectionHandler) handleConnectionIO(connection Connection) {
-	msg, err := connection.Read()
+	commands, err := connection.Read()
 	if err != nil {
 		log.Println("Read(): ", err)
 		cm.destroyConnection(connection)
 		return
 	}
+	if len(commands) == 0 {
+		return
+	}
 
-	_, err = connection.Write([]byte(msg))
+	result, err := cm.commandHandler.Execute(commands[0], commands[1:])
+	if err != nil {
+		log.Println("Execute(): ", err)
+	}
+
+	_, err = connection.Write([]byte(result))
 	if err != nil {
 		log.Println("Write(): ", err)
 	}
