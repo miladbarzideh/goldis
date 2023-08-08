@@ -1,12 +1,12 @@
 package network
 
 import (
-	"fmt"
+	"log"
 	"syscall"
 )
 
 var (
-	MAXSIZE = 8000
+	MAXSIZE = 1024
 )
 
 type Connection struct {
@@ -23,8 +23,8 @@ func (c Connection) Read() (string, error) {
 	addrFrom := c.Addr.(*syscall.SockaddrInet4)
 	message := string(msg)
 
-	fmt.Printf("%d byte read from %d:%d on socket %d\n", sizeMsg, addrFrom.Addr, addrFrom.Port, c.Fd)
-	fmt.Printf("Received message: %s\n", message)
+	log.Printf("%d byte read from %d:%d on socket %d\n", sizeMsg, addrFrom.Addr, addrFrom.Port, c.Fd)
+	log.Printf("Received message: %s\n", message)
 
 	return message, nil
 }
@@ -34,7 +34,7 @@ func (c Connection) Write(msg []byte) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	fmt.Printf("Response message: %s ", msg)
+	log.Printf("Response message: %s ", msg)
 	return 1, err
 }
 
