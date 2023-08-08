@@ -6,7 +6,7 @@ import (
 )
 
 type Socket struct {
-	fd int
+	Fd int
 }
 
 func NewSocket(ip net.IP, port int) (*Socket, error) {
@@ -35,37 +35,18 @@ func NewSocket(ip net.IP, port int) (*Socket, error) {
 	if err := syscall.Listen(fd, syscall.SOMAXCONN); err != nil {
 		return nil, err
 	}
-	return &Socket{fd: fd}, nil
+	return &Socket{Fd: fd}, nil
 }
 
-func (s Socket) Read(p []byte) (int, error) {
-	if len(p) == 0 {
-		return 0, nil
-	}
-	n, err := syscall.Read(s.fd, p)
-	if err != nil {
-		n = 0
-	}
-	return n, err
-}
-
-func (s Socket) Write(p []byte) (int, error) {
-	n, err := syscall.Write(s.fd, p)
-	if err != nil {
-		n = 0
-	}
-	return n, err
-}
-
-func (s Socket) Accept() (*Socket, error) {
-	nfd, _, err := syscall.Accept(s.fd)
+func (s Socket) Accept() (*Connection, error) {
+	fd, addr, err := syscall.Accept(s.Fd)
 	if err != nil {
 		return nil, err
 	}
-	syscall.CloseOnExec(nfd)
-	return &Socket{nfd}, nil
+	syscall.CloseOnExec(fd)
+	return &Connection{Fd: fd, Addr: addr}, nil
 }
 
 func (s Socket) Close() error {
-	return syscall.Close(s.fd)
+	return syscall.Close(s.Fd)
 }
