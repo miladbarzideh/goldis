@@ -2,6 +2,7 @@ package network
 
 import (
 	"log"
+	"strings"
 	"syscall"
 )
 
@@ -14,19 +15,22 @@ type Connection struct {
 	Addr syscall.Sockaddr
 }
 
-func (c Connection) Read() (string, error) {
-	msg := make([]byte, MAXSIZE)
-	sizeMsg, _, err := syscall.Recvfrom(c.Fd, msg, 0)
+func (c Connection) Read() ([]string, error) {
+	buf := make([]byte, MAXSIZE)
+	sizeMsg, _, err := syscall.Recvfrom(c.Fd, buf, 0)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+
+	// Remove trailing null characters
+	input := strings.TrimRight(string(buf[:sizeMsg]), "\x00")
+	commands := strings.Split(input, " ")
+
 	addrFrom := c.Addr.(*syscall.SockaddrInet4)
-	message := string(msg)
-
 	log.Printf("%d byte read from %d:%d on socket %d\n", sizeMsg, addrFrom.Addr, addrFrom.Port, c.Fd)
-	log.Printf("Received message: %s\n", message)
+	log.Printf("Received command: %s\n", input)
 
-	return message, nil
+	return commands, nil
 }
 
 func (c Connection) Write(msg []byte) (int, error) {
