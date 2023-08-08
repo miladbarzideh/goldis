@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bufio"
-	"github.com/miladbarzideh/goldis/internal/network"
-	"io"
 	"log"
 	"net"
+
+	"github.com/miladbarzideh/goldis/internal/network"
 )
 
 func main() {
@@ -13,35 +12,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer socket.Close()
 
-	for {
-		c, err := socket.Accept()
-		if err != nil {
-			log.Panic(err)
-		}
-
-		//only serves one client connection at once
-		for {
-			err := oneRequest(c)
-			if err != nil {
-				log.Print(err)
-				break
-			}
-		}
-	}
-}
-
-func oneRequest(c *network.Socket) error {
-	data, err := bufio.NewReader(c).ReadString('\n')
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Client says: %s", data)
-
-	if _, err = io.WriteString(c, "OK\n"); err != nil {
-		return err
-	}
-	return nil
+	connManager := network.NewConnectionHandler(socket)
+	connManager.StartServer()
 }
