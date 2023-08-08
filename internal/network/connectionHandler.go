@@ -1,7 +1,6 @@
 package network
 
 import (
-	"fmt"
 	"log"
 	"syscall"
 )
@@ -56,18 +55,17 @@ func (cm *ConnectionHandler) destroyConnection(connection Connection) {
 	_ = connection.Close()
 }
 
-func (cm *ConnectionHandler) handleConnectionIO(fd int) {
-	connection := cm.fdConn.Get(fd)
+func (cm *ConnectionHandler) handleConnectionIO(connection Connection) {
 	msg, err := connection.Read()
 	if err != nil {
-		fmt.Println("Read(): ", err)
+		log.Println("Read(): ", err)
 		cm.destroyConnection(connection)
 		return
 	}
 
 	_, err = connection.Write([]byte(msg))
 	if err != nil {
-		fmt.Println("Write(): ", err)
+		log.Println("Write(): ", err)
 	}
 }
 
@@ -83,7 +81,7 @@ func (cm *ConnectionHandler) handleActiveConnections(fdSet syscall.FdSet) {
 			if fd == cm.socket.Fd {
 				cm.acceptNewConnection()
 			} else {
-				cm.handleConnectionIO(fd)
+				cm.handleConnectionIO(cm.fdConn[fd])
 			}
 		}
 	}
