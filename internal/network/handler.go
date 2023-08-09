@@ -75,7 +75,7 @@ func (cm *ConnectionHandler) handleConnectionIO(connection Connection) {
 		log.Println("Execute(): ", err)
 	}
 
-	_, err = connection.Write([]byte(result))
+	_, err = connection.Write([]byte(result + "\n"))
 	if err != nil {
 		log.Println("Write(): ", err)
 	}
