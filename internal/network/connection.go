@@ -2,7 +2,7 @@ package network
 
 import (
 	"log"
-	"strings"
+	"regexp"
 	"syscall"
 )
 
@@ -22,9 +22,10 @@ func (c Connection) Read() ([]string, error) {
 		return nil, err
 	}
 
-	// Remove trailing null characters
-	input := strings.TrimRight(string(buf[:sizeMsg]), "\x00")
-	commands := strings.Split(input, " ")
+	// Ignore white spaces and new lines
+	input := string(buf[:sizeMsg])
+	regex := regexp.MustCompile(`\w+`)
+	commands := regex.FindAllString(input, -1)
 
 	addrFrom := c.Addr.(*syscall.SockaddrInet4)
 	log.Printf("%d byte read from %d:%d on socket %d\n", sizeMsg, addrFrom.Addr, addrFrom.Port, c.Fd)
