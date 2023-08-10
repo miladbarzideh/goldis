@@ -2,7 +2,6 @@ package network
 
 import (
 	"log"
-	"regexp"
 	"syscall"
 )
 
@@ -15,23 +14,20 @@ type Connection struct {
 	Addr syscall.Sockaddr
 }
 
-func (c Connection) Read() ([]string, error) {
+func (c Connection) Read() (string, error) {
 	buf := make([]byte, MAXSIZE)
 	sizeMsg, _, err := syscall.Recvfrom(c.Fd, buf, 0)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	// Ignore white spaces and new lines
 	input := string(buf[:sizeMsg])
-	regex := regexp.MustCompile(`\w+`)
-	commands := regex.FindAllString(input, -1)
 
 	addrFrom := c.Addr.(*syscall.SockaddrInet4)
 	log.Printf("%d byte read from %d:%d on socket %d\n", sizeMsg, addrFrom.Addr, addrFrom.Port, c.Fd)
 	log.Printf("Received command: %s\n", input)
 
-	return commands, nil
+	return input, nil
 }
 
 func (c Connection) Write(msg []byte) (int, error) {
