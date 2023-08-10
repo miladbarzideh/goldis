@@ -32,6 +32,8 @@ To get started with the project, follow these steps:
 1. Clone the repository: `git clone https://github.com/miladbarzideh/goldis.git`
 2. Navigate to the project directory: `cd goldis`
 3. Run the application: `cd cmd/goldis/ && go build && ./goldis`
+4. Use netcat to communicate with server: `nc localhost 6380`
+5. Apply any basic command like: `set key value`
 
 ## Concepts Explored
 
