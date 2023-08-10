@@ -8,7 +8,12 @@ import (
 	"github.com/miladbarzideh/goldis/internal/repository"
 )
 
-const syntaxErrorMsg = "(error) ERR syntax error"
+const (
+	getCommand     = "get"
+	setCommand     = "set"
+	delCommand     = "del"
+	syntaxErrorMsg = "(error) ERR syntax error"
+)
 
 type Handler struct {
 	dataSource *repository.DataStore
@@ -25,11 +30,11 @@ func (h *Handler) Execute(input string) string {
 	}
 	command, args := commandParts[0], commandParts[1:]
 	log.Printf("Command %s will be executed", command)
-	if strings.EqualFold(command, "set") && len(args) == 2 {
+	if strings.EqualFold(command, setCommand) && len(args) == 2 {
 		return h.dataSource.Set(args[0], args[1])
-	} else if strings.EqualFold(command, "get") && len(args) == 1 {
+	} else if strings.EqualFold(command, getCommand) && len(args) == 1 {
 		return h.dataSource.Get(args[0])
-	} else if strings.EqualFold(command, "del") && len(args) == 1 {
+	} else if strings.EqualFold(command, delCommand) && len(args) == 1 {
 		return h.dataSource.Delete(args[0])
 	}
 	return syntaxErrorMsg
