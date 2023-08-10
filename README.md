@@ -37,13 +37,17 @@ To get started with the project, follow these steps:
 
 Throughout the development of this project, the following key concepts were explored and implemented:
 
-| Concepts Explored   |     Implemented Features      |    Further Steps |
-|---------------------|:-----------------------------:|-----------------:|
+| Concepts Explored  |     Implemented Features      |    Further Steps |
+|--------------------|:-----------------------------:|-----------------:|
 | Network programming |  Nonblocking IO, Event loop   | Protocol parsing |
-| Server commands     |         GET, SET, DEL         |                  |
-| Hashtable           | Hashtable, Chaining, Resizing |                  |
-| (WIP)               |                               |                  |
-
+| Server commands    |         GET, SET, DEL         |                  |
+| Hashtable          | Hashtable, Chaining, Resizing |                  |
+| Data Serialization |              WIP              |                  |
+| AVL Tree           |              WIP              |                  |
+| Data Serialization |              WIP              |                  |
+| Sorted Set         |              WIP              |                  |
+| Heap and TTL       |              WIP              |                  |
+| Thread Pool        |              WIP              |                  |
 
 ## Contributing
 
