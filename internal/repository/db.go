@@ -5,6 +5,10 @@ import (
 	"unsafe"
 )
 
+const resOK = "OK"
+const resKO = "KO"
+const resNil = "(nil)"
+
 type DataStore struct {
 	db *HMap
 }
@@ -32,7 +36,7 @@ func (ds *DataStore) Get(key string) string {
 	entry := newEntry(key)
 	node := ds.db.lookup(&entry.node, entryEq)
 	if node == nil {
-		return "(nil)"
+		return resNil
 	}
 	return containerOf(node).value
 }
@@ -47,7 +51,17 @@ func (ds *DataStore) Set(key string, value string) string {
 		entry.value = value
 		ds.db.insert(&entry.node)
 	}
-	return "OK"
+	return resOK
+}
+
+func (ds *DataStore) Delete(key string) string {
+	entry := newEntry(key)
+	node := ds.db.pop(&entry.node, entryEq)
+	if node != nil {
+		//containerOf(node) = nil
+		return resOK
+	}
+	return resKO
 }
 
 func entryEq(lhs, rhs *HNode) bool {

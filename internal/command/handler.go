@@ -28,6 +28,8 @@ func (h *Handler) Execute(input string) string {
 		return h.dataSource.Set(args[0], args[1])
 	} else if command == "get" && len(args) == 1 {
 		return h.dataSource.Get(args[0])
+	} else if command == "del" && len(args) == 1 {
+		return h.dataSource.Delete(args[0])
 	}
 	return syntaxErrorMsg
 }
