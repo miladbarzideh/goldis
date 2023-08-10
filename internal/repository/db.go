@@ -21,30 +21,28 @@ func NewDataStore() *DataStore {
 	}
 }
 
-func (ds *DataStore) Get(key string) string {
-	entry := Entry{
+func newEntry(key string) *Entry {
+	return &Entry{
 		node: HNode{hcode: hash(key)},
 		key:  key,
 	}
+}
 
+func (ds *DataStore) Get(key string) string {
+	entry := newEntry(key)
 	node := ds.db.lookup(&entry.node, entryEq)
 	if node == nil {
 		return "(nil)"
 	}
-
-	return (*Entry)(unsafe.Pointer(uintptr(unsafe.Pointer(node)) - unsafe.Offsetof(Entry{}.node))).value
+	return containerOf(node).value
 }
 
 func (ds *DataStore) Set(key string, value string) string {
-	entry := Entry{
-		node: HNode{hcode: hash(key)},
-		key:  key,
-	}
-
+	entry := newEntry(key)
 	node := ds.db.lookup(&entry.node, entryEq)
 	//update the value
 	if node != nil {
-		(*Entry)(unsafe.Pointer(uintptr(unsafe.Pointer(node)) - unsafe.Offsetof(Entry{}.node))).value = value
+		containerOf(node).value = value
 	} else {
 		entry.value = value
 		ds.db.insert(&entry.node)
@@ -53,10 +51,15 @@ func (ds *DataStore) Set(key string, value string) string {
 }
 
 func entryEq(lhs, rhs *HNode) bool {
-	// We can use the unsafe package to perform pointer arithmetic and access members within a structure without knowing its type
-	le := (*Entry)(unsafe.Pointer(uintptr(unsafe.Pointer(lhs)) - unsafe.Offsetof(Entry{}.node)))
-	re := (*Entry)(unsafe.Pointer(uintptr(unsafe.Pointer(rhs)) - unsafe.Offsetof(Entry{}.node)))
+	le := containerOf(lhs)
+	re := containerOf(rhs)
 	return lhs.hcode == rhs.hcode && le.key == re.key
+}
+
+// We can use the unsafe package to perform pointer arithmetic,
+// and access members within a structure without knowing its type
+func containerOf(lhs *HNode) *Entry {
+	return (*Entry)(unsafe.Pointer(uintptr(unsafe.Pointer(lhs)) - unsafe.Offsetof(Entry{}.node)))
 }
 
 func hash(s string) uint64 {
