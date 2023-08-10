@@ -60,20 +60,14 @@ func (cm *ConnectionHandler) destroyConnection(connection Connection) {
 }
 
 func (cm *ConnectionHandler) handleConnectionIO(connection Connection) {
-	commands, err := connection.Read()
+	input, err := connection.Read()
 	if err != nil {
 		log.Println("Read(): ", err)
 		cm.destroyConnection(connection)
 		return
 	}
-	if len(commands) == 0 {
-		return
-	}
 
-	result, err := cm.commandHandler.Execute(commands[0], commands[1:])
-	if err != nil {
-		log.Println("Execute(): ", err)
-	}
+	result := cm.commandHandler.Execute(input)
 
 	_, err = connection.Write([]byte(result + "\n"))
 	if err != nil {
