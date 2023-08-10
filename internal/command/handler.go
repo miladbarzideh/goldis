@@ -25,7 +25,7 @@ func NewHandler() *Handler {
 
 func (h *Handler) Execute(input string) string {
 	commandParts := extractCommandParts(input)
-	if commandParts == nil && len(commandParts) <= 1 {
+	if commandParts == nil || len(commandParts) <= 1 {
 		return syntaxErrorMsg
 	}
 	command, args := commandParts[0], commandParts[1:]
