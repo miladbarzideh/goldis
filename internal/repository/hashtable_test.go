@@ -32,6 +32,7 @@ func TestHMapLookup(t *testing.T) {
 	hmap.insert(node)
 
 	foundNode := hmap.lookup(node, entryEq)
+
 	if foundNode == nil {
 		t.Errorf("Expected node to be found, got  nil")
 	}
@@ -46,10 +47,26 @@ func TestHMapDelete(t *testing.T) {
 	hmap.insert(node)
 
 	deleteNode := hmap.pop(node, entryEq)
+
 	if hmap.tab1.size != 0 {
 		t.Errorf("Expected tab1 size to be 0, got %v", hmap.tab1.size)
 	}
 	if deleteNode != node {
 		t.Errorf("Expected deleted node to be %v, got %v", deleteNode, node)
+	}
+}
+
+func TestHMaoDestroy(t *testing.T) {
+	hmap := NewHMap()
+	node := &HNode{hcode: hash("key")}
+	hmap.insert(node)
+
+	hmap.destroy()
+
+	if hmap.tab1.size != 0 {
+		t.Errorf("Expected tab1 size to be 0, got %v", hmap.tab1.size)
+	}
+	if hmap.tab2.tab != nil {
+		t.Error("Expected tab2 to be nil")
 	}
 }
