@@ -1,6 +1,9 @@
 package repository
 
-import "testing"
+import (
+	"strconv"
+	"testing"
+)
 
 func TestNewHMap(t *testing.T) {
 	hmap := NewHMap()
@@ -68,5 +71,18 @@ func TestHMaoDestroy(t *testing.T) {
 	}
 	if hmap.tab2.tab != nil {
 		t.Error("Expected tab2 to be nil")
+	}
+}
+
+func TestHMapResizing(t *testing.T) {
+	hmap := NewHMap()
+
+	for i := 0; i < 10; i++ {
+		node := &HNode{hcode: hash("key" + strconv.Itoa(i))}
+		hmap.insert(node)
+	}
+
+	if hmap.tab1.size != 10 {
+		t.Errorf("Expected tab1 size to be 10, got %v", hmap.tab1.size)
 	}
 }
