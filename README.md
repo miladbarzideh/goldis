@@ -7,7 +7,6 @@ This project is a practical implementation of the concepts presented in the book
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Features](#features)
 - [Getting Started](#getting-started)
 - [Concepts Explored](#concepts-explored)
 - [Contributing](#contributing)
@@ -16,14 +15,6 @@ This project is a practical implementation of the concepts presented in the book
 
 This project is a result of studying the book "Build Your Own Redis with C/C++". It aims to help developers gain a deeper understanding 
 of network programming and data structures.
-
-## Features
-
-- Networking support for client-server communication
-- Basic key-value storage
-- In-memory data storage
-- Basic command processing (e.g., GET, SET, DEL)
-
 
 ## Getting Started
 
@@ -46,7 +37,6 @@ Throughout the development of this project, the following key concepts were expl
 | Hashtable          | Hashtable, Chaining, Resizing |                  |
 | Data Serialization |              WIP              |                  |
 | AVL Tree           |              WIP              |                  |
-| Data Serialization |              WIP              |                  |
 | Sorted Set         |              WIP              |                  |
 | Heap and TTL       |              WIP              |                  |
 | Thread Pool        |              WIP              |                  |
