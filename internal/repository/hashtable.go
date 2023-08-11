@@ -137,7 +137,7 @@ func (hmap *HMap) pop(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) *HN
 	return nil
 }
 
-func (hmap *HMap) destory() {
+func (hmap *HMap) destroy() {
 	hmap.tab1.freeHTab()
 	hmap.tab2.freeHTab()
 	hmap.tab1 = HTab{}
