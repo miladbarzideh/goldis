@@ -39,3 +39,17 @@ func TestHMapLookup(t *testing.T) {
 		t.Errorf("Expected node to be %v, got %v", foundNode, node)
 	}
 }
+
+func TestHMapDelete(t *testing.T) {
+	hmap := NewHMap()
+	node := &HNode{hcode: hash("key")}
+	hmap.insert(node)
+
+	deleteNode := hmap.pop(node, entryEq)
+	if hmap.tab1.size != 0 {
+		t.Errorf("Expected tab1 size to be 0, got %v", hmap.tab1.size)
+	}
+	if deleteNode != node {
+		t.Errorf("Expected deleted node to be %v, got %v", deleteNode, node)
+	}
+}
