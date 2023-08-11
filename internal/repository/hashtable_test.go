@@ -25,3 +25,17 @@ func TestHMapInsert(t *testing.T) {
 		}
 	}
 }
+
+func TestHMapLookup(t *testing.T) {
+	hmap := NewHMap()
+	node := &HNode{hcode: hash("key")}
+	hmap.insert(node)
+
+	foundNode := hmap.lookup(node, entryEq)
+	if foundNode == nil {
+		t.Errorf("Expected node to be found, got  nil")
+	}
+	if foundNode != node {
+		t.Errorf("Expected node to be %v, got %v", foundNode, node)
+	}
+}
