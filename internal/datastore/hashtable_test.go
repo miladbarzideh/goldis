@@ -21,7 +21,7 @@ func TestHMapInsert(t *testing.T) {
 
 	for i := 0; i < 3; i++ {
 		node := &HNode{hcode: hash("key")}
-		hmap.insert(node)
+		hmap.Insert(node)
 		expectedSize := i + 1
 		if hmap.tab1.size != expectedSize {
 			t.Errorf("Expected tab1 size to be %d, got %d", expectedSize, hmap.tab1.size)
@@ -32,9 +32,9 @@ func TestHMapInsert(t *testing.T) {
 func TestHMapLookup(t *testing.T) {
 	hmap := NewHMap()
 	node := &HNode{hcode: hash("key")}
-	hmap.insert(node)
+	hmap.Insert(node)
 
-	foundNode := hmap.lookup(node, entryEq)
+	foundNode := hmap.Lookup(node, entryEq)
 
 	if foundNode == nil {
 		t.Errorf("Expected node to be found, got  nil")
@@ -47,9 +47,9 @@ func TestHMapLookup(t *testing.T) {
 func TestHMapDelete(t *testing.T) {
 	hmap := NewHMap()
 	node := &HNode{hcode: hash("key")}
-	hmap.insert(node)
+	hmap.Insert(node)
 
-	deleteNode := hmap.pop(node, entryEq)
+	deleteNode := hmap.Pop(node, entryEq)
 
 	if hmap.tab1.size != 0 {
 		t.Errorf("Expected tab1 size to be 0, got %v", hmap.tab1.size)
@@ -62,9 +62,9 @@ func TestHMapDelete(t *testing.T) {
 func TestHMaoDestroy(t *testing.T) {
 	hmap := NewHMap()
 	node := &HNode{hcode: hash("key")}
-	hmap.insert(node)
+	hmap.Insert(node)
 
-	hmap.destroy()
+	hmap.Destroy()
 
 	if hmap.tab1.size != 0 {
 		t.Errorf("Expected tab1 size to be 0, got %v", hmap.tab1.size)
@@ -79,7 +79,7 @@ func TestHMapResizing(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		node := &HNode{hcode: hash("key" + strconv.Itoa(i))}
-		hmap.insert(node)
+		hmap.Insert(node)
 	}
 
 	if hmap.tab1.size != 10 {
