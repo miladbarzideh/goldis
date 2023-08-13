@@ -30,11 +30,12 @@ func (h *Handler) Execute(input string) string {
 	}
 	command, args := commandParts[0], commandParts[1:]
 	log.Printf("Command %s will be executed", command)
-	if strings.EqualFold(command, setCommand) && len(args) == 2 {
+	switch {
+	case strings.EqualFold(command, setCommand) && len(args) == 2:
 		return h.dataSource.Set(args[0], args[1])
-	} else if strings.EqualFold(command, getCommand) && len(args) == 1 {
+	case strings.EqualFold(command, getCommand) && len(args) == 1:
 		return h.dataSource.Get(args[0])
-	} else if strings.EqualFold(command, delCommand) && len(args) == 1 {
+	case strings.EqualFold(command, delCommand) && len(args) == 1:
 		return h.dataSource.Delete(args[0])
 	}
 	return syntaxErrorMsg
