@@ -5,9 +5,11 @@ import (
 	"unsafe"
 )
 
-const resOK = "OK"
-const resKO = "KO"
-const resNil = "(nil)"
+const (
+	resOK  = "OK"
+	resKO  = "KO"
+	resNil = "(nil)"
+)
 
 type DataStore struct {
 	db *HMap
@@ -34,7 +36,7 @@ func newEntry(key string) *Entry {
 
 func (ds *DataStore) Get(key string) string {
 	entry := newEntry(key)
-	node := ds.db.lookup(&entry.node, entryEq)
+	node := ds.db.Lookup(&entry.node, entryEq)
 	if node == nil {
 		return resNil
 	}
@@ -43,20 +45,20 @@ func (ds *DataStore) Get(key string) string {
 
 func (ds *DataStore) Set(key string, value string) string {
 	entry := newEntry(key)
-	node := ds.db.lookup(&entry.node, entryEq)
+	node := ds.db.Lookup(&entry.node, entryEq)
 	//update the value
 	if node != nil {
 		containerOf(node).value = value
 	} else {
 		entry.value = value
-		ds.db.insert(&entry.node)
+		ds.db.Insert(&entry.node)
 	}
 	return resOK
 }
 
 func (ds *DataStore) Delete(key string) string {
 	entry := newEntry(key)
-	node := ds.db.pop(&entry.node, entryEq)
+	node := ds.db.Pop(&entry.node, entryEq)
 	if node != nil {
 		//containerOf(node) = nil
 		return resOK
@@ -71,7 +73,7 @@ func entryEq(lhs, rhs *HNode) bool {
 }
 
 // We can use the unsafe package to perform pointer arithmetic,
-// and access members within a structure without knowing its type
+// and have an intrusive data structure
 func containerOf(lhs *HNode) *Entry {
 	return (*Entry)(unsafe.Pointer(uintptr(unsafe.Pointer(lhs)) - unsafe.Offsetof(Entry{}.node)))
 }

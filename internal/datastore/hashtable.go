@@ -71,6 +71,49 @@ func NewHMap() *HMap {
 	return &hmap
 }
 
+func (hmap *HMap) Lookup(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) *HNode {
+	hmap.helpResizing()
+	node := hmap.tab1.lookup(key, cmp)
+	if node == nil {
+		node = hmap.tab2.lookup(key, cmp)
+	}
+	if node != nil {
+		return *node
+	}
+	return nil
+}
+
+func (hmap *HMap) Insert(node *HNode) {
+	hmap.tab1.insert(node)
+	if hmap.tab2.tab == nil {
+		loadFactor := uint64(hmap.tab1.size)/hmap.tab1.mask + 1
+		if loadFactor > maxLoadFactor {
+			hmap.startResizing()
+		}
+	}
+	hmap.helpResizing()
+}
+
+func (hmap *HMap) Pop(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) *HNode {
+	hmap.helpResizing()
+	node := hmap.tab1.lookup(key, cmp)
+	if node != nil {
+		return hmap.tab1.detach(node)
+	}
+	node = hmap.tab2.lookup(key, cmp)
+	if node != nil {
+		return hmap.tab2.detach(node)
+	}
+	return nil
+}
+
+func (hmap *HMap) Destroy() {
+	hmap.tab1.freeHTab()
+	hmap.tab2.freeHTab()
+	hmap.tab1 = HTab{}
+	hmap.tab2 = HTab{}
+}
+
 func (hmap *HMap) helpResizing() {
 	if hmap.tab2.tab == nil {
 		return
@@ -99,47 +142,4 @@ func (hmap *HMap) startResizing() {
 	newSize := (hmap.tab1.mask + 1) * 2
 	initHTab(&hmap.tab1, newSize)
 	hmap.resizingPos = 0
-}
-
-func (hmap *HMap) lookup(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) *HNode {
-	hmap.helpResizing()
-	node := hmap.tab1.lookup(key, cmp)
-	if node == nil {
-		node = hmap.tab2.lookup(key, cmp)
-	}
-	if node != nil {
-		return *node
-	}
-	return nil
-}
-
-func (hmap *HMap) insert(node *HNode) {
-	hmap.tab1.insert(node)
-	if hmap.tab2.tab == nil {
-		loadFactor := uint64(hmap.tab1.size)/hmap.tab1.mask + 1
-		if loadFactor > maxLoadFactor {
-			hmap.startResizing()
-		}
-	}
-	hmap.helpResizing()
-}
-
-func (hmap *HMap) pop(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) *HNode {
-	hmap.helpResizing()
-	node := hmap.tab1.lookup(key, cmp)
-	if node != nil {
-		return hmap.tab1.detach(node)
-	}
-	node = hmap.tab2.lookup(key, cmp)
-	if node != nil {
-		return hmap.tab2.detach(node)
-	}
-	return nil
-}
-
-func (hmap *HMap) destroy() {
-	hmap.tab1.freeHTab()
-	hmap.tab2.freeHTab()
-	hmap.tab1 = HTab{}
-	hmap.tab2 = HTab{}
 }
