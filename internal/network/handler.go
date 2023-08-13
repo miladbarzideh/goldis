@@ -20,8 +20,8 @@ type ConnectionHandler struct {
 func NewConnectionHandler(socket *Socket) *ConnectionHandler {
 	serverFd := socket.Fd
 	var activeFd syscall.FdSet
-	FdZero(&activeFd)
-	FdSet(serverFd, &activeFd)
+	fdZero(&activeFd)
+	fdSet(serverFd, &activeFd)
 	fdConn := FdConnInit()
 	return &ConnectionHandler{
 		socket:         socket,
@@ -46,16 +46,16 @@ func (cm *ConnectionHandler) StartServer() {
 
 func (cm *ConnectionHandler) addConnection(connection *Connection) {
 	acceptedFd := connection.Fd
-	FdSet(acceptedFd, &cm.activeFd)
-	cm.fdConn.Set(acceptedFd, *connection)
+	fdSet(acceptedFd, &cm.activeFd)
+	cm.fdConn.set(acceptedFd, *connection)
 	if acceptedFd > cm.fdMax {
 		cm.fdMax = acceptedFd
 	}
 }
 
 func (cm *ConnectionHandler) destroyConnection(connection Connection) {
-	FdClr(connection.Fd, &cm.activeFd)
-	cm.fdConn.Clr(connection.Fd)
+	fdClr(connection.Fd, &cm.activeFd)
+	cm.fdConn.clr(connection.Fd)
 	_ = connection.Close()
 }
 
@@ -83,7 +83,7 @@ func (cm *ConnectionHandler) getActiveFDSet() syscall.FdSet {
 func (cm *ConnectionHandler) handleActiveConnections(fdSet syscall.FdSet) {
 	// the event loop
 	for fd := 0; fd < cm.fdMax+1; fd++ {
-		if FdIsSet(fd, &fdSet) {
+		if fdIsSet(fd, &fdSet) {
 			if fd == cm.socket.Fd {
 				cm.acceptNewConnection()
 			} else {
@@ -101,15 +101,15 @@ func (cm *ConnectionHandler) acceptNewConnection() {
 	cm.addConnection(connection)
 }
 
-func FdIsSet(fd int, p *syscall.FdSet) bool {
+func fdIsSet(fd int, p *syscall.FdSet) bool {
 	return p.Bits[fd/32]&(1<<(uint(fd)%32)) != 0
 }
 
-func FdSet(fd int, p *syscall.FdSet) {
+func fdSet(fd int, p *syscall.FdSet) {
 	p.Bits[fd/32] |= 1 << (uint(fd) % 32)
 }
 
-func FdClr(fd int, p *syscall.FdSet) {
+func fdClr(fd int, p *syscall.FdSet) {
 	p.Bits[fd/32] &^= 1 << (uint(fd) % 32)
 }
 
@@ -119,18 +119,14 @@ func FdConnInit() FdConn {
 	return make(FdConn, syscall.FD_SETSIZE)
 }
 
-func (f *FdConn) Get(fd int) Connection {
-	return (*f)[fd]
-}
-
-func (f *FdConn) Set(fd int, value Connection) {
+func (f *FdConn) set(fd int, value Connection) {
 	(*f)[fd] = value
 }
 
-func (f *FdConn) Clr(fd int) {
+func (f *FdConn) clr(fd int) {
 	delete(*f, fd)
 }
 
-func FdZero(p *syscall.FdSet) {
+func fdZero(p *syscall.FdSet) {
 	p.Bits = [32]int32{}
 }

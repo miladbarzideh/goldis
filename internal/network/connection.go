@@ -5,8 +5,8 @@ import (
 	"syscall"
 )
 
-var (
-	MAXSIZE = 1024
+const (
+	maxSize = 1024
 )
 
 type Connection struct {
@@ -15,7 +15,7 @@ type Connection struct {
 }
 
 func (c Connection) Read() (string, error) {
-	buf := make([]byte, MAXSIZE)
+	buf := make([]byte, maxSize)
 	sizeMsg, _, err := syscall.Recvfrom(c.Fd, buf, 0)
 	if err != nil {
 		return "", err
