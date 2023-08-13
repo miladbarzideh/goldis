@@ -1,4 +1,4 @@
-package repository
+package datastore
 
 const (
 	resizingWork  = 128

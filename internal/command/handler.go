@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/miladbarzideh/goldis/internal/repository"
+	"github.com/miladbarzideh/goldis/internal/datastore"
 )
 
 const (
@@ -16,11 +16,11 @@ const (
 )
 
 type Handler struct {
-	dataSource *repository.DataStore
+	dataSource *datastore.DataStore
 }
 
 func NewHandler() *Handler {
-	return &Handler{dataSource: repository.NewDataStore()}
+	return &Handler{dataSource: datastore.NewDataStore()}
 }
 
 func (h *Handler) Execute(input string) string {

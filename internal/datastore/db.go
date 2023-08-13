@@ -1,4 +1,4 @@
-package repository
+package datastore
 
 import (
 	"hash/fnv"
