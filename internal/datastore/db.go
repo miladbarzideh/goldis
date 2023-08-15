@@ -17,8 +17,8 @@ func NewDataStore() *DataStore {
 }
 
 func (ds *DataStore) Get(key string) string {
-	entry := newMapEntry(key)
-	node := ds.db.Lookup(&entry.node, entryEq)
+	entry := NewMapEntry(key)
+	node := ds.db.Lookup(&entry.node, EntryEq)
 	if node == nil {
 		return resNil
 	}
@@ -26,8 +26,8 @@ func (ds *DataStore) Get(key string) string {
 }
 
 func (ds *DataStore) Set(key string, value string) string {
-	entry := newMapEntry(key)
-	node := ds.db.Lookup(&entry.node, entryEq)
+	entry := NewMapEntry(key)
+	node := ds.db.Lookup(&entry.node, EntryEq)
 	//update the value
 	if node != nil {
 		mapEntryContainerOf(node).value = value
@@ -39,8 +39,8 @@ func (ds *DataStore) Set(key string, value string) string {
 }
 
 func (ds *DataStore) Delete(key string) string {
-	entry := newMapEntry(key)
-	node := ds.db.Pop(&entry.node, entryEq)
+	entry := NewMapEntry(key)
+	node := ds.db.Pop(&entry.node, EntryEq)
 	if node != nil {
 		//containerOf(node) = nil
 		return resOK
@@ -48,7 +48,7 @@ func (ds *DataStore) Delete(key string) string {
 	return resKO
 }
 
-func entryEq(lhs, rhs *HNode) bool {
+func EntryEq(lhs, rhs *HNode) bool {
 	le := mapEntryContainerOf(lhs)
 	re := mapEntryContainerOf(rhs)
 	return lhs.hcode == rhs.hcode && le.key == re.key

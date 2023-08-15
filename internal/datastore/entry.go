@@ -38,7 +38,7 @@ type MapEntry struct {
 	value string
 }
 
-func newMapEntry(key string) *MapEntry {
+func NewMapEntry(key string) *MapEntry {
 	return &MapEntry{
 		node: HNode{hcode: hash(key)},
 		key:  key,

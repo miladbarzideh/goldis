@@ -34,7 +34,7 @@ func TestHMapLookup(t *testing.T) {
 	node := &HNode{hcode: hash("key")}
 	hmap.Insert(node)
 
-	foundNode := hmap.Lookup(node, entryEq)
+	foundNode := hmap.Lookup(node, EntryEq)
 
 	if foundNode == nil {
 		t.Errorf("Expected node to be found, got  nil")
@@ -49,7 +49,7 @@ func TestHMapDelete(t *testing.T) {
 	node := &HNode{hcode: hash("key")}
 	hmap.Insert(node)
 
-	deleteNode := hmap.Pop(node, entryEq)
+	deleteNode := hmap.Pop(node, EntryEq)
 
 	if hmap.tab1.size != 0 {
 		t.Errorf("Expected tab1 size to be 0, got %v", hmap.tab1.size)
