@@ -47,9 +47,3 @@ func (ds *DataStore) Delete(key string) string {
 	}
 	return resKO
 }
-
-func EntryEq(lhs, rhs *HNode) bool {
-	le := mapEntryContainerOf(lhs)
-	re := mapEntryContainerOf(rhs)
-	return lhs.hcode == rhs.hcode && le.key == re.key
-}

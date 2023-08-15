@@ -51,6 +51,12 @@ func mapEntryContainerOf(lhs *HNode) *MapEntry {
 	return (*MapEntry)(unsafe.Pointer(uintptr(unsafe.Pointer(lhs)) - unsafe.Offsetof(MapEntry{}.node)))
 }
 
+func EntryEq(lhs, rhs *HNode) bool {
+	le := mapEntryContainerOf(lhs)
+	re := mapEntryContainerOf(rhs)
+	return lhs.hcode == rhs.hcode && le.key == re.key
+}
+
 func hash(s string) uint64 {
 	h := fnv.New64()
 	h.Write([]byte(s))
