@@ -33,11 +33,11 @@ Throughout the development of this project, the following key concepts were expl
 | Concepts Explored  |            Implemented Features             |    Further Steps |
 |--------------------|:-------------------------------------------:|-----------------:|
 | Network programming |         Nonblocking IO, Event loop          | Protocol parsing |
-| Server commands    |                GET, SET, DEL                |                  |
+| Server commands    |  GET, SET, DEL, ZADD, ZREM, ZSCORE, ZQUERY  |                  |
 | Hashtable          | Hashtable, Chaining, Resizing, Intrusive DS |                  |
 | Data Serialization |                     WIP                     |                  |
 | AVL Tree           |                Intrusive DS                 |                  |
-| Sorted Set         |                     WIP                     |                  |
+| Sorted Set         |            Hashtable + AVL Tree             |                  |
 | Heap and TTL       |                     WIP                     |                  |
 | Thread Pool        |                     WIP                     |                  |
 
