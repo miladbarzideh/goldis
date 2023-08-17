@@ -30,8 +30,13 @@ func (t *AVLTree) DisplayNodes() {
 	t.root.displayNodes()
 }
 
+func (t *AVLTree) Offset(node *AVLNode, offset uint32) *AVLNode {
+	return node.offset(offset)
+}
+
 type AVLNode struct {
 	height uint32
+	count  uint32
 	left   *AVLNode
 	right  *AVLNode
 }
@@ -105,6 +110,30 @@ func (currNode *AVLNode) displayNodes() {
 	}
 }
 
+func (currNode *AVLNode) offset(offset uint32) *AVLNode {
+	if currNode == nil {
+		return nil
+	}
+	node := currNode //TODO: copy values
+	pos := node.left.getCount() + 1
+	for offset != pos {
+		if offset < pos {
+			// The target is inside the left subtree
+			node = node.left
+			pos -= node.right.getCount() + 1
+		} else {
+			// The target is inside the right subtree
+			node = node.right
+			pos += node.left.getCount() + 1
+		}
+		if node == nil {
+			return nil
+		}
+	}
+
+	return node
+}
+
 func (node *AVLNode) rebalance() *AVLNode {
 	if node == nil {
 		return node
@@ -139,8 +168,8 @@ func (node *AVLNode) rotateRight() *AVLNode {
 	leftChild := node.left
 	node.left = leftChild.right
 	leftChild.right = node
-	node.updateHeight()
-	leftChild.updateHeight()
+	node.update()
+	leftChild.update()
 	return leftChild
 }
 
@@ -148,8 +177,8 @@ func (node *AVLNode) rotateLeft() *AVLNode {
 	rightChild := node.right
 	node.right = rightChild.left
 	rightChild.left = node
-	node.updateHeight()
-	rightChild.updateHeight()
+	node.update()
+	rightChild.update()
 	return rightChild
 }
 
@@ -157,8 +186,9 @@ func (node *AVLNode) balanceFactor() int32 {
 	return int32(node.left.getHeight() - node.right.getHeight())
 }
 
-func (node *AVLNode) updateHeight() {
+func (node *AVLNode) update() {
 	node.height = max(node.left.getHeight(), node.right.getHeight()) + 1
+	node.count = node.left.getCount() + node.right.getCount() + 1
 }
 
 func (node *AVLNode) getHeight() uint32 {
@@ -166,6 +196,13 @@ func (node *AVLNode) getHeight() uint32 {
 		return 0
 	}
 	return node.height
+}
+
+func (node *AVLNode) getCount() uint32 {
+	if node == nil {
+		return 0
+	}
+	return node.count
 }
 
 type AVLEntry struct {
