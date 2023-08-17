@@ -34,10 +34,25 @@ func NewZNode(name string, score float64) *ZNode {
 
 func (zset *ZSet) Add(name string, score float64) bool {
 	node := zset.Lookup(name)
-	node = NewZNode(name, score)
+	if node == nil {
+		node = NewZNode(name, score)
+		zset.hmap.Insert(&node.hmap)
+		zset.tree.Insert(&node.tree, avlEntryEq)
+		return true
+	} else {
+		zset.update(node, score)
+		return false
+	}
+}
+
+func (zset *ZSet) update(node *ZNode, score float64) {
+	if node.score == score {
+		return
+	}
+	zset.tree.Remove(&node.tree, avlEntryEq)
+	node = NewZNode(node.name, score)
 	zset.hmap.Insert(&node.hmap)
 	zset.tree.Insert(&node.tree, avlEntryEq)
-	return true //TODO: always return true, return false in case of update
 }
 
 func (zset *ZSet) Lookup(name string) *ZNode {
