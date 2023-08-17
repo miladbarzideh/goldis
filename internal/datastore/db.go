@@ -54,7 +54,7 @@ func (ds *DataStore) Delete(key string) string {
 	return resKO
 }
 
-// ZAdd command pattern: zset score name
+// ZAdd command pattern: zadd zset score name
 func (ds *DataStore) ZAdd(key string, score float64, name string) string {
 	entry := NewMapEntry(key)
 	node := ds.db.Lookup(&entry.node, EntryEq)
@@ -71,18 +71,21 @@ func (ds *DataStore) ZAdd(key string, score float64, name string) string {
 	return resOK
 }
 
-// ZRemove command pattern: zset name
+// ZRemove command pattern: zrem zset name
 func (ds *DataStore) ZRemove(key string, name string) string {
 	exist, entry := ds.expect(key)
 	if !exist {
-		return resOK //or null
+		return resKO
 	}
 
-	entry.zset.Pop(name)
+	node := entry.zset.Pop(name)
+	if node != nil {
+		node = &ZNode{}
+	}
 	return resOK
 }
 
-// ZScore command pattern: zset name
+// ZScore command pattern: zscore zset name
 func (ds *DataStore) ZScore(key string, name string) string {
 	exist, entry := ds.expect(key)
 	if !exist {
@@ -95,7 +98,7 @@ func (ds *DataStore) ZScore(key string, name string) string {
 	return fmt.Sprintf("%v", node.score)
 }
 
-// ZQuery command pattern: zset score name offset limit
+// ZQuery command pattern: zquery zset score name offset limit
 func (ds *DataStore) ZQuery(key string, score float64, name string, offset uint32, limit uint32) string {
 	exist, entry := ds.expect(key)
 	if !exist {
@@ -125,7 +128,7 @@ func (ds *DataStore) expect(key string) (bool, *MapEntry) {
 
 type MapEntry struct {
 	node  HNode
-	zset  *ZSet //which one GOD!! :))
+	zset  *ZSet //which one GOD!! :)) TODO: remove it :))
 	key   string
 	value string
 	//also add a type
