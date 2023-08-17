@@ -16,17 +16,12 @@ func NewAVLEntry(value int32) *AVLEntry {
 }
 
 func avlEntryEq(l, r *AVLNode) int {
-	le := avlEntryContainerOf(l)
-	re := avlEntryContainerOf(r)
+	le := (*AVLEntry)(containerOf(unsafe.Pointer(l), unsafe.Offsetof(AVLEntry{}.node)))
+	re := (*AVLEntry)(containerOf(unsafe.Pointer(r), unsafe.Offsetof(AVLEntry{}.node)))
 	if le.value > re.value {
 		return 1
 	} else if le.value < re.value {
 		return -1
 	}
 	return 0
-}
-
-// avlEntryContainerOf to have an intrusive data structure
-func avlEntryContainerOf(node *AVLNode) *AVLEntry {
-	return (*AVLEntry)(unsafe.Pointer(uintptr(unsafe.Pointer(node)) - unsafe.Offsetof(AVLEntry{}.node)))
 }

@@ -1,6 +1,9 @@
 package datastore
 
-import "log"
+import (
+	"log"
+	"unsafe"
+)
 
 // AVLTree (Height-balanced BST)
 type AVLTree struct {
@@ -96,7 +99,7 @@ func (currNode *AVLNode) displayNodes() {
 	if currNode.left != nil {
 		currNode.left.displayNodes()
 	}
-	log.Printf("%v", avlEntryContainerOf(currNode).value)
+	log.Printf("%v", (*AVLEntry)(containerOf(unsafe.Pointer(currNode), unsafe.Offsetof(AVLEntry{}.node))).value)
 	if currNode.right != nil {
 		currNode.right.displayNodes()
 	}
