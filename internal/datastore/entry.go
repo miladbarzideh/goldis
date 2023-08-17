@@ -1,7 +1,6 @@
 package datastore
 
 import (
-	"hash/fnv"
 	"unsafe"
 )
 
@@ -30,35 +29,4 @@ func avlEntryEq(l, r *AVLNode) int {
 // avlEntryContainerOf to have an intrusive data structure
 func avlEntryContainerOf(node *AVLNode) *AVLEntry {
 	return (*AVLEntry)(unsafe.Pointer(uintptr(unsafe.Pointer(node)) - unsafe.Offsetof(AVLEntry{}.node)))
-}
-
-type MapEntry struct {
-	node  HNode
-	key   string
-	value string
-}
-
-func NewMapEntry(key string) *MapEntry {
-	return &MapEntry{
-		node: HNode{hcode: hash(key)},
-		key:  key,
-	}
-}
-
-// We can use the unsafe package to perform pointer arithmetic,
-// and have an intrusive data structure
-func mapEntryContainerOf(lhs *HNode) *MapEntry {
-	return (*MapEntry)(unsafe.Pointer(uintptr(unsafe.Pointer(lhs)) - unsafe.Offsetof(MapEntry{}.node)))
-}
-
-func EntryEq(lhs, rhs *HNode) bool {
-	le := mapEntryContainerOf(lhs)
-	re := mapEntryContainerOf(rhs)
-	return lhs.hcode == rhs.hcode && le.key == re.key
-}
-
-func hash(s string) uint64 {
-	h := fnv.New64()
-	h.Write([]byte(s))
-	return h.Sum64()
 }

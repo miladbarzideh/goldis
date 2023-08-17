@@ -1,5 +1,7 @@
 package datastore
 
+import "unsafe"
+
 const (
 	resOK  = "OK"
 	resKO  = "KO"
@@ -22,7 +24,7 @@ func (ds *DataStore) Get(key string) string {
 	if node == nil {
 		return resNil
 	}
-	return mapEntryContainerOf(node).value
+	return (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node))).value
 }
 
 func (ds *DataStore) Set(key string, value string) string {
@@ -30,7 +32,7 @@ func (ds *DataStore) Set(key string, value string) string {
 	node := ds.db.Lookup(&entry.node, EntryEq)
 	//update the value
 	if node != nil {
-		mapEntryContainerOf(node).value = value
+		(*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node))).value = value
 	} else {
 		entry.value = value
 		ds.db.Insert(&entry.node)
@@ -46,4 +48,23 @@ func (ds *DataStore) Delete(key string) string {
 		return resOK
 	}
 	return resKO
+}
+
+type MapEntry struct {
+	node  HNode
+	key   string
+	value string
+}
+
+func NewMapEntry(key string) *MapEntry {
+	return &MapEntry{
+		node: HNode{hcode: hash(key)},
+		key:  key,
+	}
+}
+
+func EntryEq(lhs, rhs *HNode) bool {
+	le := (*MapEntry)(containerOf(unsafe.Pointer(lhs), unsafe.Offsetof(MapEntry{}.node)))
+	re := (*MapEntry)(containerOf(unsafe.Pointer(rhs), unsafe.Offsetof(MapEntry{}.node)))
+	return lhs.hcode == rhs.hcode && le.key == re.key
 }
