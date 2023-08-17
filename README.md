@@ -26,6 +26,16 @@ To get started with the project, follow these steps:
 4. Use netcat to communicate with server: `nc localhost 6380`
 5. Apply any basic command like: `set key value`
 
+## Server Commands
+
+1. SET: `SET key value`
+2. GET: `GET key`
+3. DEL: `DEL key`
+4. ZADD: `ZADD key 20 name`
+5. ZSCORE: `ZSCORE key name`
+6. ZDEL: `ZDEL key name`
+7. ZQUERY: `ZQUERY key 18 name 0 10`
+
 ## Concepts Explored
 
 Throughout the development of this project, the following key concepts were explored and implemented:
@@ -33,7 +43,6 @@ Throughout the development of this project, the following key concepts were expl
 | Concepts Explored  |            Implemented Features             |    Further Steps |
 |--------------------|:-------------------------------------------:|-----------------:|
 | Network programming |         Nonblocking IO, Event loop          | Protocol parsing |
-| Server commands    |  GET, SET, DEL, ZADD, ZREM, ZSCORE, ZQUERY  |                  |
 | Hashtable          | Hashtable, Chaining, Resizing, Intrusive DS |                  |
 | Data Serialization |                     WIP                     |                  |
 | AVL Tree           |                Intrusive DS                 |                  |
