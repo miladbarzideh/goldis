@@ -16,3 +16,10 @@ func hash(s string) uint64 {
 	h.Write([]byte(s))
 	return h.Sum64()
 }
+
+func max(a uint32, b uint32) uint32 {
+	if a > b {
+		return a
+	}
+	return b
+}

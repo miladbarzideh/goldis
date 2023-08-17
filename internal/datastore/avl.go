@@ -164,10 +164,3 @@ func (node *AVLNode) getHeight() uint32 {
 	}
 	return node.height
 }
-
-func max(a uint32, b uint32) uint32 {
-	if a > b {
-		return a
-	}
-	return b
-}
