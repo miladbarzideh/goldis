@@ -1,6 +1,10 @@
 package datastore
 
-import "unsafe"
+import (
+	"fmt"
+	"strings"
+	"unsafe"
+)
 
 const (
 	resOK  = "OK"
@@ -50,10 +54,81 @@ func (ds *DataStore) Delete(key string) string {
 	return resKO
 }
 
+// ZAdd command pattern: zset score name
+func (ds *DataStore) ZAdd(key string, score float64, name string) string {
+	entry := NewMapEntry(key)
+	node := ds.db.Lookup(&entry.node, EntryEq)
+	//update the value
+	if node == nil {
+		entry.zset = NewZSet()
+		ds.db.Insert(&entry.node)
+	} else {
+		entry = (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+		//check the type of data and raise an error
+	}
+
+	entry.zset.Add(name, score)
+	return resOK
+}
+
+// ZRemove command pattern: zset name
+func (ds *DataStore) ZRemove(key string, name string) string {
+	exist, entry := ds.expect(key)
+	if !exist {
+		return resOK //or null
+	}
+
+	entry.zset.Pop(name)
+	return resOK
+}
+
+// ZScore command pattern: zset name
+func (ds *DataStore) ZScore(key string, name string) string {
+	exist, entry := ds.expect(key)
+	if !exist {
+		return resNil
+	}
+	node := entry.zset.Lookup(name)
+	if node == nil {
+		return resNil
+	}
+	return fmt.Sprintf("%v", node.score)
+}
+
+// ZQuery command pattern: zset score name offset limit
+func (ds *DataStore) ZQuery(key string, score float64, name string, offset uint32, limit uint32) string {
+	exist, entry := ds.expect(key)
+	if !exist {
+		return resNil
+	}
+	node := entry.zset.Query(score, name, offset)
+	result := strings.Builder{}
+	n := uint32(0)
+	for node != nil && n < limit {
+		result.WriteString(fmt.Sprintf("%v => %v", node.name, node.score))
+		node = (*ZNode)(containerOf(unsafe.Pointer(node.tree.offset(1)), unsafe.Offsetof(ZNode{}.tree)))
+		n += 2
+	}
+	return result.String()
+}
+
+func (ds *DataStore) expect(key string) (bool, *MapEntry) {
+	entry := NewMapEntry(key)
+	node := ds.db.Lookup(&entry.node, EntryEq)
+	if node == nil {
+		return false, nil
+	}
+	entry = (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+	//TODO: check the type of data and raise an error
+	return true, entry
+}
+
 type MapEntry struct {
 	node  HNode
+	zset  *ZSet //which one GOD!! :))
 	key   string
 	value string
+	//also add a type
 }
 
 func NewMapEntry(key string) *MapEntry {
