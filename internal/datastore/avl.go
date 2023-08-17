@@ -34,6 +34,10 @@ func (t *AVLTree) Offset(node *AVLNode, offset uint32) *AVLNode {
 	return node.offset(offset)
 }
 
+func (t *AVLTree) Dispose() {
+	t.root.dispose()
+}
+
 type AVLNode struct {
 	height uint32
 	count  uint32
@@ -110,11 +114,20 @@ func (currNode *AVLNode) displayNodes() {
 	}
 }
 
+func (currNode *AVLNode) dispose() {
+	if currNode == nil {
+		return
+	}
+	currNode.left.dispose()
+	currNode.right.dispose()
+	currNode = nil //TODO: Assignment to the method receiver propagates only to callees but not to callers
+}
+
 func (currNode *AVLNode) offset(offset uint32) *AVLNode {
 	if currNode == nil {
 		return nil
 	}
-	node := currNode //TODO: copy values
+	node := currNode
 	pos := node.left.getCount() + 1
 	for offset != pos {
 		if offset < pos {
