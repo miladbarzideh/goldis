@@ -1,9 +1,5 @@
 package datastore
 
-import (
-	"unsafe"
-)
-
 // AVLTree (Height-balanced BST)
 type AVLTree struct {
 	root *AVLNode
@@ -212,20 +208,4 @@ func (node *AVLNode) getCount() uint32 {
 		return 0
 	}
 	return node.count
-}
-
-func avlEntryEq(l, r *AVLNode) int {
-	le := (*ZNode)(containerOf(unsafe.Pointer(l), unsafe.Offsetof(ZNode{}.tree)))
-	re := (*ZNode)(containerOf(unsafe.Pointer(r), unsafe.Offsetof(ZNode{}.tree)))
-	if le.score > re.score {
-		return 1
-	} else if le.score < re.score {
-		return -1
-	}
-	if le.name < re.name {
-		return 1
-	} else if le.name > re.name {
-		return -1
-	}
-	return 0
 }

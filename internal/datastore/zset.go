@@ -164,3 +164,19 @@ func entryEq(node, key *HNode) bool {
 	hkey := (*HKey)(containerOf(unsafe.Pointer(key), unsafe.Offsetof(HKey{}.node)))
 	return znode.name == hkey.name
 }
+
+func avlEntryEq(l, r *AVLNode) int {
+	le := (*ZNode)(containerOf(unsafe.Pointer(l), unsafe.Offsetof(ZNode{}.tree)))
+	re := (*ZNode)(containerOf(unsafe.Pointer(r), unsafe.Offsetof(ZNode{}.tree)))
+	if le.score > re.score {
+		return 1
+	} else if le.score < re.score {
+		return -1
+	}
+	if le.name < re.name {
+		return 1
+	} else if le.name > re.name {
+		return -1
+	}
+	return 0
+}
