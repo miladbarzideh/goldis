@@ -131,7 +131,7 @@ func (ds *DataStore) ZShow(key string) string {
 	if !exist {
 		return resNil
 	}
-	entry.zset.Display()
+	entry.zset.Show()
 	return resOK
 }
 
