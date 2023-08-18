@@ -26,8 +26,18 @@ func (t *AVLTree) Search(node *AVLNode, cmp func(node1 *AVLNode, node2 *AVLNode)
 	return t.root.search(node, cmp)
 }
 
-func (t *AVLTree) DisplayNodes() {
-	t.root.displayNodes()
+func (t *AVLTree) Traverse() []*AVLNode {
+	res := make([]*AVLNode, 0)
+	traverse(t.root, &res)
+	return res
+}
+
+func traverse(node *AVLNode, result *[]*AVLNode) {
+	if node != nil {
+		traverse(node.left, result)
+		*result = append(*result, node)
+		traverse(node.right, result)
+	}
 }
 
 func (t *AVLTree) Offset(node *AVLNode, offset uint32) *AVLNode {
@@ -101,6 +111,7 @@ func (currNode *AVLNode) findSmallest() *AVLNode {
 	}
 }
 
+// TODO: inorder traverse and return all nodes, then do whatever you want
 func (currNode *AVLNode) displayNodes() {
 	if currNode == nil {
 		return
@@ -108,7 +119,8 @@ func (currNode *AVLNode) displayNodes() {
 	if currNode.left != nil {
 		currNode.left.displayNodes()
 	}
-	log.Printf("%v", (*AVLEntry)(containerOf(unsafe.Pointer(currNode), unsafe.Offsetof(AVLEntry{}.node))).value)
+	node := (*ZNode)(containerOf(unsafe.Pointer(currNode), unsafe.Offsetof(ZNode{}.tree)))
+	log.Printf("[%v => %v]", node.name, node.score)
 	if currNode.right != nil {
 		currNode.right.displayNodes()
 	}
@@ -218,23 +230,17 @@ func (node *AVLNode) getCount() uint32 {
 	return node.count
 }
 
-type AVLEntry struct {
-	node  AVLNode
-	value int32
-}
-
-func NewAVLEntry(value int32) *AVLEntry {
-	return &AVLEntry{
-		value: value,
-	}
-}
-
 func avlEntryEq(l, r *AVLNode) int {
-	le := (*AVLEntry)(containerOf(unsafe.Pointer(l), unsafe.Offsetof(AVLEntry{}.node)))
-	re := (*AVLEntry)(containerOf(unsafe.Pointer(r), unsafe.Offsetof(AVLEntry{}.node)))
-	if le.value > re.value {
+	le := (*ZNode)(containerOf(unsafe.Pointer(l), unsafe.Offsetof(ZNode{}.tree)))
+	re := (*ZNode)(containerOf(unsafe.Pointer(r), unsafe.Offsetof(ZNode{}.tree)))
+	if le.score > re.score {
 		return 1
-	} else if le.value < re.value {
+	} else if le.score < re.score {
+		return -1
+	}
+	if le.name < re.name {
+		return 1
+	} else if le.name > re.name {
 		return -1
 	}
 	return 0
