@@ -1,5 +1,10 @@
 package datastore
 
+import (
+	"fmt"
+	"unsafe"
+)
+
 const (
 	resizingWork  = 128
 	maxLoadFactor = 8
@@ -66,6 +71,19 @@ func (htab *HTab) freeHTab() {
 	htab.tab = nil
 }
 
+func (htab *HTab) keys(cnt uint32) {
+	if htab.size == 0 {
+		return
+	}
+	for i, node := range htab.tab {
+		for node != nil {
+			entry := (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+			fmt.Printf("Hash Table=%d, Bucket=%d, hashcode=%v, key=%s, value=%s\n", cnt, i, node.hcode, entry.key, entry.value)
+			node = node.next
+		}
+	}
+}
+
 func NewHMap() *HMap {
 	hmap := HMap{}
 	initHTab(&hmap.tab1, bucketSize)
@@ -106,6 +124,11 @@ func (hmap *HMap) Pop(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) *HN
 		return hmap.tab2.detach(node)
 	}
 	return nil
+}
+
+func (hmap *HMap) Keys() {
+	hmap.tab1.keys(1)
+	hmap.tab2.keys(2)
 }
 
 func (hmap *HMap) Destroy() {
