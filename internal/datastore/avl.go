@@ -1,7 +1,6 @@
 package datastore
 
 import (
-	"log"
 	"unsafe"
 )
 
@@ -108,21 +107,6 @@ func (currNode *AVLNode) findSmallest() *AVLNode {
 		return currNode.left.findSmallest()
 	} else {
 		return currNode
-	}
-}
-
-// TODO: inorder traverse and return all nodes, then do whatever you want
-func (currNode *AVLNode) displayNodes() {
-	if currNode == nil {
-		return
-	}
-	if currNode.left != nil {
-		currNode.left.displayNodes()
-	}
-	node := (*ZNode)(containerOf(unsafe.Pointer(currNode), unsafe.Offsetof(ZNode{}.tree)))
-	log.Printf("[%v => %v]", node.name, node.score)
-	if currNode.right != nil {
-		currNode.right.displayNodes()
 	}
 }
 
