@@ -17,20 +17,20 @@ func TestNewAVLTree(t *testing.T) {
 func TestAVLTree_Insert(t *testing.T) {
 	tree := NewAVLTree()
 
-	entry := NewAVLEntry(1)
-	tree.Insert(&entry.node, avlEntryEq)
+	entry := NewZNode("milad", 20)
+	tree.Insert(&entry.tree, avlEntryEq)
 
-	if tree.root != &entry.node {
-		t.Errorf("Expected root to be %v, got %v", tree.root, entry.node)
+	if tree.root != &entry.tree {
+		t.Errorf("Expected root to be %v, got %v", tree.root, entry.tree)
 	}
 }
 
 func TestAVLTree_Remove(t *testing.T) {
 	tree := NewAVLTree()
-	entry := NewAVLEntry(1)
-	tree.Insert(&entry.node, avlEntryEq)
+	entry := NewZNode("milad", 20)
+	tree.Insert(&entry.tree, avlEntryEq)
 
-	tree.Remove(&entry.node, avlEntryEq)
+	tree.Remove(&entry.tree, avlEntryEq)
 
 	if tree.root != nil {
 		t.Errorf("Expected root to be nil, got %v", tree.root)
@@ -39,17 +39,17 @@ func TestAVLTree_Remove(t *testing.T) {
 
 func TestAVLTree_Search(t *testing.T) {
 	tree := NewAVLTree()
-	entry1 := NewAVLEntry(1)
-	entry2 := NewAVLEntry(8)
-	tree.Insert(&entry1.node, avlEntryEq)
-	tree.Insert(&entry2.node, avlEntryEq)
+	entry1 := NewZNode("milad", 20)
+	entry2 := NewZNode("ali", 19)
+	tree.Insert(&entry1.tree, avlEntryEq)
+	tree.Insert(&entry2.tree, avlEntryEq)
 
-	foundNode := tree.Search(&entry2.node, avlEntryEq)
+	foundNode := tree.Search(&entry2.tree, avlEntryEq)
 	if foundNode == nil {
-		t.Errorf("Expected found node to be %v, got nil", &entry2.node)
+		t.Errorf("Expected found node to be %v, got nil", &entry2.tree)
 	}
-	if foundNode != &entry2.node {
-		t.Errorf("Expected found node to be %v, got %v", &entry2.node, foundNode)
+	if foundNode != &entry2.tree {
+		t.Errorf("Expected found node to be %v, got %v", &entry2.tree, foundNode)
 	}
 }
 
@@ -61,9 +61,8 @@ func TestAVLTree_DisplayNodes(t *testing.T) {
 
 	for range nums {
 		n := nums[r.Intn(len(nums))]
-		entry := *NewAVLEntry(n)
-		tree.Insert(&entry.node, avlEntryEq)
+		entry := NewZNode("name", float64(n))
+		tree.Insert(&entry.tree, avlEntryEq)
 	}
-
-	tree.DisplayNodes()
+	tree.Traverse()
 }
