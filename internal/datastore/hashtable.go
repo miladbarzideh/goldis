@@ -53,7 +53,8 @@ func (htab *HTab) lookup(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) 
 
 func (htab *HTab) detach(from **HNode) *HNode {
 	node := *from
-	from = &(*from).next
+	*from = node.next
+	node.next = nil
 	htab.size--
 	return node
 }
