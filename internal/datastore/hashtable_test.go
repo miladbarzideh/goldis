@@ -57,6 +57,10 @@ func TestHMapDelete(t *testing.T) {
 	if deleteNode != node {
 		t.Errorf("Expected deleted node to be %v, got %v", deleteNode, node)
 	}
+	found := hmap.Lookup(node, EntryEq)
+	if found != nil {
+		t.Errorf("Expected found to be nil, got %v", found)
+	}
 }
 
 func TestHMaoDestroy(t *testing.T) {
