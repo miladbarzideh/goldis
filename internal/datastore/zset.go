@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"log"
 	"unsafe"
 )
 
@@ -50,9 +51,10 @@ func (zset *ZSet) update(node *ZNode, score float64) {
 		return
 	}
 	zset.tree.Remove(&node.tree, avlEntryEq)
-	node = NewZNode(node.name, score)
-	zset.hmap.Insert(&node.hmap)
-	zset.tree.Insert(&node.tree, avlEntryEq)
+	zset.hmap.Pop(&node.hmap, entryEq)
+	newNode := NewZNode(node.name, score)
+	zset.hmap.Insert(&newNode.hmap)
+	zset.tree.Insert(&newNode.tree, avlEntryEq)
 }
 
 func (zset *ZSet) Lookup(name string) *ZNode {
@@ -80,6 +82,27 @@ func (zset *ZSet) Pop(name string) *ZNode {
 	node := (*ZNode)(containerOf(unsafe.Pointer(found), unsafe.Offsetof(ZNode{}.hmap)))
 	zset.tree.Remove(&node.tree, avlEntryEq)
 	return node
+}
+
+func (zset *ZSet) Show() {
+	printTreeNode(zset.tree.Traverse())
+	printHashtable(zset.hmap.Keys())
+}
+
+func printHashtable(nodes []*HNode) {
+	log.Print("Hashtable name-score pair:\n")
+	for _, node := range nodes {
+		entry := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.hmap)))
+		log.Printf("%v => %v", entry.name, entry.score)
+	}
+}
+
+func printTreeNode(nodes []*AVLNode) {
+	log.Print("AVL Tree Inorder Traversal:\n")
+	for _, node := range nodes {
+		entry := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
+		log.Printf("%v => %v", entry.score, entry.name)
+	}
 }
 
 func (zset *ZSet) Query(score float64, name string, offset uint32) *ZNode {
