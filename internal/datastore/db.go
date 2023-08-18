@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"unsafe"
 )
@@ -52,6 +53,16 @@ func (ds *DataStore) Delete(key string) string {
 		return resOK
 	}
 	return resKO
+}
+
+func (ds *DataStore) Keys() string {
+	nodes := ds.db.Keys()
+	log.Print("Hashtable key-value pairs:\n")
+	for _, node := range nodes {
+		entry := (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+		log.Printf("%s => %s", entry.key, entry.value)
+	}
+	return resOK
 }
 
 // ZAdd command pattern: zadd zset score name
@@ -113,6 +124,15 @@ func (ds *DataStore) ZQuery(key string, score float64, name string, offset uint3
 		n += 2
 	}
 	return result.String()
+}
+
+func (ds *DataStore) ZShow(key string) string {
+	exist, entry := ds.expect(key)
+	if !exist {
+		return resNil
+	}
+	entry.zset.Display()
+	return resOK
 }
 
 func (ds *DataStore) expect(key string) (bool, *MapEntry) {
