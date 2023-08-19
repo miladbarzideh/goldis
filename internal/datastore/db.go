@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	resOK  = "OK"
-	resKO  = "KO"
-	resNil = "(nil)"
+	resOK   = "OK"
+	resKO   = "KO"
+	resNil  = "(nil)"
+	errType = "(error) ERR expect zset"
 )
 
 type DataStore struct {
@@ -24,7 +25,7 @@ func NewDataStore() *DataStore {
 }
 
 func (ds *DataStore) Get(key string) string {
-	entry := NewMapEntry(key)
+	entry := NewMapEntry(key, STR)
 	node := ds.db.Lookup(&entry.node, EntryEq)
 	if node == nil {
 		return resNil
@@ -33,7 +34,7 @@ func (ds *DataStore) Get(key string) string {
 }
 
 func (ds *DataStore) Set(key string, value string) string {
-	entry := NewMapEntry(key)
+	entry := NewMapEntry(key, STR)
 	node := ds.db.Lookup(&entry.node, EntryEq)
 	//update the value
 	if node != nil {
@@ -46,7 +47,7 @@ func (ds *DataStore) Set(key string, value string) string {
 }
 
 func (ds *DataStore) Delete(key string) string {
-	entry := NewMapEntry(key)
+	entry := NewMapEntry(key, STR)
 	node := ds.db.Pop(&entry.node, EntryEq)
 	if node != nil {
 		//containerOf(node) = nil
@@ -67,7 +68,7 @@ func (ds *DataStore) Keys() string {
 
 // ZAdd command pattern: zadd zset score name
 func (ds *DataStore) ZAdd(key string, score float64, name string) string {
-	entry := NewMapEntry(key)
+	entry := NewMapEntry(key, ZSET)
 	node := ds.db.Lookup(&entry.node, EntryEq)
 	//update the value
 	if node == nil {
@@ -75,7 +76,9 @@ func (ds *DataStore) ZAdd(key string, score float64, name string) string {
 		ds.db.Insert(&entry.node)
 	} else {
 		entry = (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
-		//check the type of data and raise an error
+		if entry.entryType != ZSET {
+			return errType
+		}
 	}
 
 	entry.zset.Add(name, score)
@@ -136,7 +139,7 @@ func (ds *DataStore) ZShow(key string) string {
 }
 
 func (ds *DataStore) expect(key string) (bool, *MapEntry) {
-	entry := NewMapEntry(key)
+	entry := NewMapEntry(key, ZSET)
 	node := ds.db.Lookup(&entry.node, EntryEq)
 	if node == nil {
 		return false, nil
@@ -146,18 +149,26 @@ func (ds *DataStore) expect(key string) (bool, *MapEntry) {
 	return true, entry
 }
 
+type EntryType int
+
+const (
+	ZSET = iota
+	STR
+)
+
 type MapEntry struct {
-	node  HNode
-	zset  *ZSet //which one GOD!! :)) TODO: remove it :))
-	key   string
-	value string
-	//also add a type
+	node      HNode
+	zset      *ZSet //TODO
+	key       string
+	value     string
+	entryType EntryType
 }
 
-func NewMapEntry(key string) *MapEntry {
+func NewMapEntry(key string, entryType EntryType) *MapEntry {
 	return &MapEntry{
-		node: HNode{hcode: hash(key)},
-		key:  key,
+		node:      HNode{hcode: hash(key)},
+		key:       key,
+		entryType: entryType,
 	}
 }
 
