@@ -51,7 +51,8 @@ func (zset *ZSet) update(node *ZNode, score float64) {
 		return
 	}
 	zset.tree.Remove(&node.tree, avlEntryEq)
-	zset.hmap.Pop(&node.hmap, entryEq)
+	key := newHKey(node.name)
+	zset.hmap.Pop(&key.node, entryEq)
 	newNode := NewZNode(node.name, score)
 	zset.hmap.Insert(&newNode.hmap)
 	zset.tree.Insert(&newNode.tree, avlEntryEq)
