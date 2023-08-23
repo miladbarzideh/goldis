@@ -145,11 +145,11 @@ func (node *AVLNode) rebalance() *AVLNode {
 	if node == nil {
 		return node
 	}
-	if node.balanceFactor() < 0 {
-		//left-heavy
-		node = node.fixRight()
-	} else if node.balanceFactor() > 0 {
+	if node.balanceFactor() < -1 {
 		//right-heavy
+		node = node.fixRight()
+	} else if node.balanceFactor() > 1 {
+		//left-heavy
 		node = node.fixLeft()
 	}
 	return node
@@ -157,16 +157,16 @@ func (node *AVLNode) rebalance() *AVLNode {
 
 // fixLeft re-balance a right-heavy node (double or single right rotate)
 func (node *AVLNode) fixLeft() *AVLNode {
-	if node.left.balanceFactor() > 0 {
-		node.left = node.rotateLeft()
+	if node.left.balanceFactor() < 0 {
+		node.left = node.left.rotateLeft()
 	}
 	return node.rotateRight()
 }
 
 // rotateRight balances a left-heavy node (double or single left rotate)
 func (node *AVLNode) fixRight() *AVLNode {
-	if node.right.balanceFactor() < 0 {
-		node.right = node.rotateRight()
+	if node.right.balanceFactor() > 0 {
+		node.right = node.right.rotateRight()
 	}
 	return node.rotateLeft()
 }
@@ -194,6 +194,9 @@ func (node *AVLNode) balanceFactor() int32 {
 }
 
 func (node *AVLNode) update() {
+	if node == nil {
+		return
+	}
 	node.height = max(node.left.getHeight(), node.right.getHeight()) + 1
 	node.count = node.left.getCount() + node.right.getCount() + 1
 }
