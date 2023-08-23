@@ -17,7 +17,7 @@ func hash(s string) uint64 {
 	return h.Sum64()
 }
 
-func max(a uint32, b uint32) uint32 {
+func max(a int32, b int32) int32 {
 	if a > b {
 		return a
 	}
