@@ -113,7 +113,7 @@ func (ds *DataStore) ZScore(key string, name string) string {
 }
 
 // ZQuery command pattern: zquery zset score name offset limit
-func (ds *DataStore) ZQuery(key string, score float64, name string, offset uint32, limit uint32) string {
+func (ds *DataStore) ZQuery(key string, score float64, name string, offset int32, limit uint32) string {
 	exist, entry := ds.expect(key)
 	if !exist {
 		return resNil

@@ -35,7 +35,7 @@ func traverse(node *AVLNode, result *[]*AVLNode) {
 	}
 }
 
-func (t *AVLTree) Offset(node *AVLNode, offset uint32) *AVLNode {
+func (t *AVLTree) Offset(node *AVLNode, offset int32) *AVLNode {
 	return node.offset(offset)
 }
 
@@ -44,8 +44,8 @@ func (t *AVLTree) Dispose() {
 }
 
 type AVLNode struct {
-	height uint32
-	count  uint32
+	height int32
+	count  int32
 	left   *AVLNode
 	right  *AVLNode
 }
@@ -66,13 +66,14 @@ func (currNode *AVLNode) search(node *AVLNode, cmp func(node1 *AVLNode, node2 *A
 func (currNode *AVLNode) insert(node *AVLNode, cmp func(node1 *AVLNode, node2 *AVLNode) int) *AVLNode {
 	if currNode == nil {
 		return node
-	} else if cmp(node, currNode) >= 1 {
+	} else if cmp(node, currNode) > 0 {
 		currNode.right = currNode.right.insert(node, cmp)
-	} else if cmp(node, currNode) <= -1 {
+	} else if cmp(node, currNode) < 0 {
 		currNode.left = currNode.left.insert(node, cmp)
 	} else {
 		currNode = node
 	}
+	currNode.update()
 	return currNode.rebalance()
 }
 
@@ -80,9 +81,9 @@ func (currNode *AVLNode) remove(node *AVLNode, cmp func(node1 *AVLNode, node2 *A
 	if currNode == nil {
 		return nil
 	}
-	if cmp(node, currNode) >= 1 {
+	if cmp(node, currNode) > 0 {
 		currNode.right = currNode.right.remove(node, cmp)
-	} else if cmp(node, currNode) <= -1 {
+	} else if cmp(node, currNode) < 0 {
 		currNode.left = currNode.left.remove(node, cmp)
 	} else if currNode.left == nil && currNode.right == nil {
 		currNode = nil
@@ -95,6 +96,7 @@ func (currNode *AVLNode) remove(node *AVLNode, cmp func(node1 *AVLNode, node2 *A
 		currNode = inOrderSuccessor
 		currNode.right = currNode.right.remove(inOrderSuccessor, cmp)
 	}
+	currNode.update()
 	return currNode.rebalance()
 }
 
@@ -112,10 +114,10 @@ func (currNode *AVLNode) dispose() {
 	}
 	currNode.left.dispose()
 	currNode.right.dispose()
-	currNode = nil //TODO: Assignment to the method receiver propagates only to callees but not to callers
+	*currNode = AVLNode{}
 }
 
-func (currNode *AVLNode) offset(offset uint32) *AVLNode {
+func (currNode *AVLNode) offset(offset int32) *AVLNode {
 	if currNode == nil {
 		return nil
 	}
@@ -143,10 +145,10 @@ func (node *AVLNode) rebalance() *AVLNode {
 	if node == nil {
 		return node
 	}
-	if node.balanceFactor() < -1 {
+	if node.balanceFactor() < 0 {
 		//left-heavy
 		node = node.fixRight()
-	} else if node.balanceFactor() > 1 {
+	} else if node.balanceFactor() > 0 {
 		//right-heavy
 		node = node.fixLeft()
 	}
@@ -188,7 +190,7 @@ func (node *AVLNode) rotateLeft() *AVLNode {
 }
 
 func (node *AVLNode) balanceFactor() int32 {
-	return int32(node.left.getHeight() - node.right.getHeight())
+	return node.left.getHeight() - node.right.getHeight()
 }
 
 func (node *AVLNode) update() {
@@ -196,14 +198,14 @@ func (node *AVLNode) update() {
 	node.count = node.left.getCount() + node.right.getCount() + 1
 }
 
-func (node *AVLNode) getHeight() uint32 {
+func (node *AVLNode) getHeight() int32 {
 	if node == nil {
-		return 0
+		return -1
 	}
 	return node.height
 }
 
-func (node *AVLNode) getCount() uint32 {
+func (node *AVLNode) getCount() int32 {
 	if node == nil {
 		return 0
 	}
