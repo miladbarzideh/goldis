@@ -13,10 +13,12 @@ const (
 	getCommand     = "get"
 	setCommand     = "set"
 	delCommand     = "del"
+	keysCommand    = "keys"
 	zaddCommand    = "zadd"
 	zremCommand    = "zrem"
 	zscoreCommand  = "zscore"
 	zqueryCommand  = "zquery"
+	zshowCommand   = "zshow"
 	syntaxErrorMsg = "(error) ERR syntax error"
 )
 
@@ -30,7 +32,7 @@ func NewHandler() *Handler {
 
 func (h *Handler) Execute(input string) string {
 	commandParts := extractCommandParts(input)
-	if commandParts == nil || len(commandParts) <= 1 {
+	if commandParts == nil || len(commandParts) < 1 {
 		return syntaxErrorMsg
 	}
 	command, args := commandParts[0], commandParts[1:]
@@ -42,6 +44,8 @@ func (h *Handler) Execute(input string) string {
 		return h.dataSource.Get(args[0])
 	case strings.EqualFold(command, delCommand) && len(args) == 1:
 		return h.dataSource.Delete(args[0])
+	case strings.EqualFold(command, keysCommand):
+		return h.dataSource.Keys()
 	case strings.EqualFold(command, zaddCommand) && len(args) == 3:
 		score, err := strconv.ParseFloat(args[1], 64)
 		if err != nil {
@@ -65,7 +69,9 @@ func (h *Handler) Execute(input string) string {
 		if err != nil {
 			return syntaxErrorMsg
 		}
-		return h.dataSource.ZQuery(args[0], score, args[2], uint32(offset), uint32(limit))
+		return h.dataSource.ZQuery(args[0], score, args[2], int32(uint32(offset)), uint32(limit))
+	case strings.EqualFold(command, zshowCommand) && len(args) == 1:
+		return h.dataSource.ZShow(args[0])
 
 	}
 	return syntaxErrorMsg
