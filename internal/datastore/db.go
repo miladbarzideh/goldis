@@ -59,11 +59,14 @@ func (ds *DataStore) Delete(key string) string {
 func (ds *DataStore) Keys() string {
 	nodes := ds.db.Keys()
 	log.Print("Hashtable key-value pairs:\n")
-	for _, node := range nodes {
+	res := strings.Builder{}
+	for i, node := range nodes {
 		entry := (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
-		log.Printf("%s => %s", entry.key, entry.value)
+		kv := fmt.Sprintf("%v) %s => %s\n", i+1, entry.key, entry.value)
+		log.Printf(kv)
+		res.WriteString(kv)
 	}
-	return resOK
+	return res.String()
 }
 
 // ZAdd command pattern: zadd zset score name
@@ -134,8 +137,7 @@ func (ds *DataStore) ZShow(key string) string {
 	if !exist {
 		return resNil
 	}
-	entry.zset.Show()
-	return resOK
+	return entry.zset.Show()
 }
 
 func (ds *DataStore) expect(key string) (bool, *MapEntry) {
