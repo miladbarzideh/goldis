@@ -147,7 +147,9 @@ func (ds *DataStore) expect(key string) (bool, *MapEntry) {
 		return false, nil
 	}
 	entry = (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
-	//TODO: check the type of data and raise an error
+	if entry.entryType != ZSET {
+		return false, nil
+	}
 	return true, entry
 }
 
