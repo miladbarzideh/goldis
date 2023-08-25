@@ -93,8 +93,9 @@ func (currNode *AVLNode) remove(node *AVLNode, cmp func(node1 *AVLNode, node2 *A
 		currNode = currNode.left
 	} else { //has two children
 		inOrderSuccessor := currNode.right.findSmallest()
+		inOrderSuccessor.right = currNode.right.remove(inOrderSuccessor, cmp)
+		inOrderSuccessor.left = currNode.left
 		currNode = inOrderSuccessor
-		currNode.right = currNode.right.remove(inOrderSuccessor, cmp)
 	}
 	currNode.update()
 	return currNode.rebalance()
