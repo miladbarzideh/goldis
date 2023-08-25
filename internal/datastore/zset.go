@@ -1,7 +1,9 @@
 package datastore
 
 import (
+	"fmt"
 	"log"
+	"strings"
 	"unsafe"
 )
 
@@ -27,7 +29,7 @@ func NewZSet() *ZSet {
 func NewZNode(name string, score float64) *ZNode {
 	return &ZNode{
 		hmap:  HNode{hcode: hash(name)},
-		tree:  AVLNode{},
+		tree:  AVLNode{count: 1},
 		score: score,
 		name:  name,
 	}
@@ -85,9 +87,9 @@ func (zset *ZSet) Pop(name string) *ZNode {
 	return node
 }
 
-func (zset *ZSet) Show() {
-	printTreeNode(zset.tree.Traverse())
+func (zset *ZSet) Show() string {
 	printHashtable(zset.hmap.Keys())
+	return printTreeNode(zset.tree.Traverse())
 }
 
 func printHashtable(nodes []*HNode) {
@@ -98,15 +100,19 @@ func printHashtable(nodes []*HNode) {
 	}
 }
 
-func printTreeNode(nodes []*AVLNode) {
+func printTreeNode(nodes []*AVLNode) string {
 	log.Print("AVL Tree Inorder Traversal:\n")
-	for _, node := range nodes {
+	res := strings.Builder{}
+	for i, node := range nodes {
 		entry := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
-		log.Printf("%v => %v", entry.score, entry.name)
+		sn := fmt.Sprintf("%v) %v => %v\n", i+1, entry.score, entry.name)
+		log.Printf(sn)
+		res.WriteString(sn)
 	}
+	return res.String()
 }
 
-func (zset *ZSet) Query(score float64, name string, offset uint32) *ZNode {
+func (zset *ZSet) Query(score float64, name string, offset int32) *ZNode {
 	var found *AVLNode
 	cur := zset.tree.root
 	for cur != nil {
@@ -130,21 +136,7 @@ func (zset *ZSet) Dispose() {
 	zset.tree.Dispose()
 }
 
-// zless compare by the (score, name) tuple
-func zless(lhs *AVLNode, score float64, name string) bool {
-	zl := (*ZNode)(containerOf(unsafe.Pointer(lhs), unsafe.Offsetof(ZNode{}.tree)))
-	if zl.score != score {
-		return zl.score < score
-	}
-	return zl.name < name
-}
-
-func less(lhs *AVLNode, rhs *AVLNode) bool {
-	zr := (*ZNode)(containerOf(unsafe.Pointer(rhs), unsafe.Offsetof(ZNode{}.tree)))
-	return zless(lhs, zr.score, zr.name)
-}
-
-// a helper structure for the hashtable lookup (TODO: same as hmapEntry)
+// HKey a helper structure for the hashtable lookup
 type HKey struct {
 	node HNode
 	name string
@@ -157,13 +149,22 @@ func newHKey(name string) *HKey {
 	}
 }
 
-func entryEq(node, key *HNode) bool {
+func entryEq(key, node *HNode) bool {
 	if node.hcode != key.hcode {
 		return false
 	}
 	znode := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.hmap)))
 	hkey := (*HKey)(containerOf(unsafe.Pointer(key), unsafe.Offsetof(HKey{}.node)))
 	return znode.name == hkey.name
+}
+
+// zless compare by the (score, name) tuple
+func zless(lhs *AVLNode, score float64, name string) bool {
+	zl := (*ZNode)(containerOf(unsafe.Pointer(lhs), unsafe.Offsetof(ZNode{}.tree)))
+	if zl.score != score {
+		return zl.score < score
+	}
+	return zl.name < name
 }
 
 func avlEntryEq(l, r *AVLNode) int {
