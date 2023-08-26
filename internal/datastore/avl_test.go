@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"testing"
 	"time"
+	"unsafe"
 )
 
 func TestNewAVLTree(t *testing.T) {
@@ -173,6 +174,22 @@ func TestAVLTree_RemoveTwoChild(t *testing.T) {
 	}
 	if tree.root.getHeight() != 1 {
 		t.Errorf("Expected height to be 1, got %v", tree.root.getHeight())
+	}
+}
+
+func TestAVLTree_Offset(t *testing.T) {
+	tree := NewAVLTree()
+	entry1 := NewZNode("n1", 1)
+	entry2 := NewZNode("n2", 2)
+	entry3 := NewZNode("n3", 3)
+	tree.Insert(&entry1.tree, avlEntryEq)
+	tree.Insert(&entry2.tree, avlEntryEq)
+	tree.Insert(&entry3.tree, avlEntryEq)
+
+	node := tree.Offset(tree.root, 0)
+	znode := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
+	if znode.name != "n2" {
+		t.Errorf("Expected znode to be n2, got %v", znode.name)
 	}
 }
 
