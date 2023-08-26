@@ -34,7 +34,7 @@ To get started with the project, follow these steps:
 4. KEYS: `KEYS`
 5. ZADD: `ZADD key 20 name`
 6. ZSCORE: `ZSCORE key name`
-7. ZDEL: `ZDEL key name`
+7. ZREM: `ZREM key name`
 8. ZQUERY: `ZQUERY key 18 name 0 10`
 9. ZSHOW: `ZSHOW key`
 
