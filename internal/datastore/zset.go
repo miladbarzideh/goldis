@@ -112,7 +112,7 @@ func printTreeNode(nodes []*AVLNode) string {
 	return res.String()
 }
 
-func (zset *ZSet) Query(score float64, name string, offset int32) *ZNode {
+func (zset *ZSet) Query(score float64, name string, offset int32, limit uint32) []*ZNode {
 	var found *AVLNode
 	cur := zset.tree.root
 	for cur != nil {
@@ -125,8 +125,20 @@ func (zset *ZSet) Query(score float64, name string, offset int32) *ZNode {
 	}
 
 	if found != nil {
-		found = zset.tree.Offset(found, offset)
-		return (*ZNode)(containerOf(unsafe.Pointer(found), unsafe.Offsetof(ZNode{}.tree)))
+		node := zset.tree.Offset(found, offset)
+		znode := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
+		res := make([]*ZNode, 0)
+		n := uint32(0)
+		for znode != nil && n < limit {
+			res = append(res, znode)
+			node = znode.tree.offset(1)
+			if node == nil {
+				break
+			}
+			znode = (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
+			n++
+		}
+		return res
 	}
 	return nil
 }
