@@ -125,27 +125,30 @@ func (currNode *AVLNode) dispose() {
 }
 
 func (currNode *AVLNode) offset(offset int32) *AVLNode {
-	if currNode == nil {
-		return nil
-	}
-	node := currNode
-	pos := node.left.getCount() + 1
+	pos := int32(0)
 	for offset != pos {
-		if offset < pos {
-			// The target is inside the left subtree
-			node = node.left
-			pos -= node.right.getCount() + 1
+		if pos < offset && pos+currNode.right.getCount() >= offset {
+			// the target is inside the right subtree
+			currNode = currNode.right
+			pos += currNode.left.getCount() + 1
+		} else if pos > offset && pos-currNode.left.getCount() <= offset {
+			// the target is inside the left subtree
+			currNode = currNode.left
+			pos -= currNode.right.getCount() + 1
 		} else {
-			// The target is inside the right subtree
-			node = node.right
-			pos += node.left.getCount() + 1
-		}
-		if node == nil {
-			return nil
+			// go to the parent
+			if currNode.parent == nil {
+				return nil
+			}
+			if currNode.parent.right == currNode {
+				pos -= currNode.left.getCount() + 1
+			} else {
+				pos += currNode.right.getCount() + 1
+			}
+			currNode = currNode.parent
 		}
 	}
-
-	return node
+	return currNode
 }
 
 func (node *AVLNode) rebalance() *AVLNode {
