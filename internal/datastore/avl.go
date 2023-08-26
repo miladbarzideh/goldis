@@ -48,6 +48,7 @@ type AVLNode struct {
 	count  int32
 	left   *AVLNode
 	right  *AVLNode
+	parent *AVLNode
 }
 
 func (currNode *AVLNode) search(node *AVLNode, cmp func(node1 *AVLNode, node2 *AVLNode) int) *AVLNode {
@@ -68,8 +69,10 @@ func (currNode *AVLNode) insert(node *AVLNode, cmp func(node1 *AVLNode, node2 *A
 		return node
 	} else if cmp(node, currNode) > 0 {
 		currNode.right = currNode.right.insert(node, cmp)
+		currNode.right.parent = currNode
 	} else if cmp(node, currNode) < 0 {
 		currNode.left = currNode.left.insert(node, cmp)
+		currNode.left.parent = currNode
 	} else {
 		currNode = node
 	}
@@ -88,13 +91,16 @@ func (currNode *AVLNode) remove(node *AVLNode, cmp func(node1 *AVLNode, node2 *A
 	} else if currNode.left == nil && currNode.right == nil {
 		currNode = nil
 	} else if currNode.left == nil {
+		currNode.right.parent = currNode.parent
 		currNode = currNode.right
 	} else if currNode.right == nil {
+		currNode.left.parent = currNode.parent
 		currNode = currNode.left
 	} else { //has two children
 		inOrderSuccessor := currNode.right.findSmallest()
 		inOrderSuccessor.right = currNode.right.remove(inOrderSuccessor, cmp)
 		inOrderSuccessor.left = currNode.left
+		inOrderSuccessor.parent = currNode.parent
 		currNode = inOrderSuccessor
 	}
 	currNode.update()
@@ -176,6 +182,8 @@ func (node *AVLNode) rotateRight() *AVLNode {
 	leftChild := node.left
 	node.left = leftChild.right
 	leftChild.right = node
+	leftChild.parent = node.parent
+	node.parent = leftChild
 	node.update()
 	leftChild.update()
 	return leftChild
@@ -185,6 +193,8 @@ func (node *AVLNode) rotateLeft() *AVLNode {
 	rightChild := node.right
 	node.right = rightChild.left
 	rightChild.left = node
+	rightChild.parent = node.parent
+	node.parent = rightChild
 	node.update()
 	rightChild.update()
 	return rightChild
