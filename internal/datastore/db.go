@@ -121,13 +121,10 @@ func (ds *DataStore) ZQuery(key string, score float64, name string, offset int32
 	if !exist {
 		return resNil
 	}
-	node := entry.zset.Query(score, name, offset)
+	znodes := entry.zset.Query(score, name, offset, limit)
 	result := strings.Builder{}
-	n := uint32(0)
-	for node != nil && n < limit {
-		result.WriteString(fmt.Sprintf("%v => %v", node.name, node.score))
-		node = (*ZNode)(containerOf(unsafe.Pointer(node.tree.offset(1)), unsafe.Offsetof(ZNode{}.tree)))
-		n += 2
+	for i, znode := range znodes {
+		result.WriteString(fmt.Sprintf("%v) %v => %v\n", i, znode.name, znode.score))
 	}
 	return result.String()
 }
@@ -162,7 +159,7 @@ const (
 
 type MapEntry struct {
 	node      HNode
-	zset      *ZSet //TODO
+	zset      *ZSet
 	key       string
 	value     string
 	entryType EntryType
