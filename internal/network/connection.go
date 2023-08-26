@@ -35,7 +35,7 @@ func (c Connection) Write(msg []byte) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Printf("Response message: %s ", msg)
+	log.Printf("Response message:\n%s ", msg)
 	return 1, err
 }
 
