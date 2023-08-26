@@ -31,10 +31,12 @@ To get started with the project, follow these steps:
 1. SET: `SET key value`
 2. GET: `GET key`
 3. DEL: `DEL key`
-4. ZADD: `ZADD key 20 name`
-5. ZSCORE: `ZSCORE key name`
-6. ZDEL: `ZDEL key name`
-7. ZQUERY: `ZQUERY key 18 name 0 10`
+4. KEYS: `KEYS`
+5. ZADD: `ZADD key 20 name`
+6. ZSCORE: `ZSCORE key name`
+7. ZDEL: `ZDEL key name`
+8. ZQUERY: `ZQUERY key 18 name 0 10`
+9. ZSHOW: `ZSHOW key`
 
 ## Concepts Explored
 
@@ -46,7 +48,7 @@ Throughout the development of this project, the following key concepts were expl
 | Hashtable          | Hashtable, Chaining, Resizing, Intrusive DS |                  |
 | Data Serialization |                     WIP                     |                  |
 | AVL Tree           |                Intrusive DS                 |                  |
-| Sorted Set         |            Hashtable + AVL Tree             |                  |
+| Sorted Set         |            Hashtable + AVL Tree             |        Skip List |
 | Heap and TTL       |                     WIP                     |                  |
 | Thread Pool        |                     WIP                     |                  |
 
