@@ -3,6 +3,9 @@ package network
 import (
 	"net"
 	"syscall"
+	"time"
+
+	"github.com/miladbarzideh/goldis/internal/datastore"
 )
 
 type Socket struct {
@@ -44,7 +47,7 @@ func (s Socket) Accept() (*Connection, error) {
 		return nil, err
 	}
 	syscall.CloseOnExec(fd)
-	return &Connection{Fd: fd, Addr: addr}, nil
+	return &Connection{Fd: fd, Addr: addr, idleStart: time.Now(), idleNode: datastore.LNode{}}, nil
 }
 
 func (s Socket) Close() error {
