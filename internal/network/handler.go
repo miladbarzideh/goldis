@@ -3,9 +3,14 @@ package network
 import (
 	"log"
 	"syscall"
+	"time"
+	"unsafe"
 
 	"github.com/miladbarzideh/goldis/internal/command"
+	"github.com/miladbarzideh/goldis/internal/datastore"
 )
+
+const idleTimeout = 10 * time.Second
 
 // ConnectionHandler handles the connection management logic
 type ConnectionHandler struct {
@@ -14,6 +19,7 @@ type ConnectionHandler struct {
 	activeFd       syscall.FdSet
 	fdConn         FdConn
 	commandHandler *command.Handler
+	idleList       *datastore.DList
 }
 
 // NewConnectionHandler creates a new instance of ConnectionManager
@@ -29,6 +35,7 @@ func NewConnectionHandler(socket *Socket) *ConnectionHandler {
 		activeFd:       activeFd,
 		fdConn:         fdConn,
 		commandHandler: command.NewHandler(),
+		idleList:       datastore.NewDList(),
 	}
 }
 
@@ -36,12 +43,44 @@ func NewConnectionHandler(socket *Socket) *ConnectionHandler {
 func (cm *ConnectionHandler) StartServer() {
 	for {
 		activeFDSet := cm.getActiveFDSet()
-		err := syscall.Select(cm.fdMax+1, &activeFDSet, nil, nil, nil)
+		timeout := cm.nextTimer()
+		err := syscall.Select(cm.fdMax+1, &activeFDSet, nil, nil, &timeout)
 		if err != nil {
 			log.Fatal("Select(): ", err)
 		}
 		cm.handleActiveConnections(activeFDSet)
+		cm.processTimers()
 	}
+}
+
+func (cm *ConnectionHandler) processTimers() {
+	now := time.Now()
+	next := cm.idleList.Iterator()
+	for nxt := next(); nxt != nil; nxt = next() {
+		connection := getConnection(nxt)
+		nextTime := connection.idleStart.Add(idleTimeout)
+		if nextTime.After(now) {
+			break
+		}
+		addrFrom := connection.Addr.(*syscall.SockaddrInet4)
+		log.Printf("Destroy idle connection %d:%d on socket %d\n", addrFrom.Addr, addrFrom.Port, connection.Fd)
+		cm.destroyConnection(*connection)
+		cm.idleList.Detach(&connection.idleNode, listEq)
+	}
+}
+
+func (cm *ConnectionHandler) nextTimer() syscall.Timeval {
+	if cm.idleList.IsEmpty() {
+		return syscall.Timeval{Sec: 4} // no timer, the value doesn't matter
+	}
+	now := time.Now()
+	connection := getConnection(cm.idleList.GetHead())
+	next := connection.idleStart.Add(idleTimeout)
+	remaining := next.Sub(now)
+	if remaining <= 0 {
+		return syscall.Timeval{}
+	}
+	return syscall.NsecToTimeval(int64(remaining))
 }
 
 func (cm *ConnectionHandler) addConnection(connection *Connection) {
@@ -67,12 +106,20 @@ func (cm *ConnectionHandler) handleConnectionIO(connection Connection) {
 		return
 	}
 
+	cm.resetTimer(connection)
+
 	result := cm.commandHandler.Execute(input)
 
 	_, err = connection.Write([]byte(result + "\n"))
 	if err != nil {
 		log.Println("Write(): ", err)
 	}
+}
+
+func (cm *ConnectionHandler) resetTimer(connection Connection) {
+	connection.idleStart = time.Now()
+	cm.idleList.Detach(&connection.idleNode, listEq)
+	cm.idleList.InsertBefore(&connection.idleNode)
 }
 
 func (cm *ConnectionHandler) getActiveFDSet() syscall.FdSet {
@@ -98,6 +145,7 @@ func (cm *ConnectionHandler) acceptNewConnection() {
 	if err != nil {
 		log.Fatal("Accept(): ", err)
 	}
+	cm.idleList.InsertBefore(&connection.idleNode)
 	cm.addConnection(connection)
 }
 
@@ -129,4 +177,14 @@ func (f *FdConn) clr(fd int) {
 
 func fdZero(p *syscall.FdSet) {
 	p.Bits = [32]int32{}
+}
+
+func listEq(node1, node2 *datastore.LNode) bool {
+	c1 := getConnection(node1)
+	c2 := getConnection(node2)
+	return c1.Fd == c2.Fd
+}
+
+func getConnection(node *datastore.LNode) *Connection {
+	return (*Connection)(unsafe.Pointer(uintptr(unsafe.Pointer(node)) - unsafe.Offsetof(Connection{}.idleNode)))
 }
