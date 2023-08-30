@@ -3,6 +3,9 @@ package network
 import (
 	"log"
 	"syscall"
+	"time"
+
+	"github.com/miladbarzideh/goldis/internal/datastore"
 )
 
 const (
@@ -10,8 +13,10 @@ const (
 )
 
 type Connection struct {
-	Fd   int
-	Addr syscall.Sockaddr
+	Fd        int
+	Addr      syscall.Sockaddr
+	idleStart time.Time
+	idleNode  datastore.LNode
 }
 
 func (c Connection) Read() (string, error) {
