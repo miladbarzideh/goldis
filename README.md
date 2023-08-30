@@ -42,15 +42,16 @@ To get started with the project, follow these steps:
 
 Throughout the development of this project, the following key concepts were explored and implemented:
 
-| Concepts Explored  |            Implemented Features             |    Further Steps |
-|--------------------|:-------------------------------------------:|-----------------:|
+| Concepts Explored   |            Implemented Features             |    Further Steps |
+|---------------------|:-------------------------------------------:|-----------------:|
 | Network programming |         Nonblocking IO, Event loop          | Protocol parsing |
-| Hashtable          | Hashtable, Chaining, Resizing, Intrusive DS |                  |
-| Data Serialization |                     WIP                     |                  |
-| AVL Tree           |                Intrusive DS                 |                  |
-| Sorted Set         |            Hashtable + AVL Tree             |        Skip List |
-| Heap and TTL       |                     WIP                     |                  |
-| Thread Pool        |                     WIP                     |                  |
+| Hashtable           | Hashtable, Chaining, Resizing, Intrusive DS |                  |
+| Data Serialization  |                     WIP                     |                  |
+| AVL Tree            |                Intrusive DS                 |                  |
+| Sorted Set          |            Hashtable + AVL Tree             |        Skip List |
+| Timers              |          Kick out idle connections          |                  |
+| Heap and TTL        |                     WIP                     |                  |
+| Thread Pool         |                     WIP                     |                  |
 
 ## Contributing
 
