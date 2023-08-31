@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 	"unsafe"
+
+	"github.com/miladbarzideh/goldis/utils"
 )
 
 func TestNewAVLTree(t *testing.T) {
@@ -187,7 +189,7 @@ func TestAVLTree_Offset(t *testing.T) {
 	tree.Insert(&entry3.tree, avlEntryEq)
 
 	node := tree.Offset(tree.root, 0)
-	znode := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
+	znode := (*ZNode)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
 	if znode.name != "n2" {
 		t.Errorf("Expected znode to be n2, got %v", znode.name)
 	}

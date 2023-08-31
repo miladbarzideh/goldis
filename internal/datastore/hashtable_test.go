@@ -3,6 +3,8 @@ package datastore
 import (
 	"strconv"
 	"testing"
+
+	"github.com/miladbarzideh/goldis/utils"
 )
 
 func TestNewHMap(t *testing.T) {
@@ -20,7 +22,7 @@ func TestHMapInsert(t *testing.T) {
 	hmap := NewHMap()
 
 	for i := 0; i < 3; i++ {
-		node := &HNode{hcode: hash("key")}
+		node := &HNode{hcode: utils.Hash("key")}
 		hmap.Insert(node)
 		expectedSize := i + 1
 		if hmap.tab1.size != expectedSize {
@@ -31,7 +33,7 @@ func TestHMapInsert(t *testing.T) {
 
 func TestHMapLookup(t *testing.T) {
 	hmap := NewHMap()
-	node := &HNode{hcode: hash("key")}
+	node := &HNode{hcode: utils.Hash("key")}
 	hmap.Insert(node)
 
 	foundNode := hmap.Lookup(node, EntryEq)
@@ -46,7 +48,7 @@ func TestHMapLookup(t *testing.T) {
 
 func TestHMapDelete(t *testing.T) {
 	hmap := NewHMap()
-	node := &HNode{hcode: hash("key")}
+	node := &HNode{hcode: utils.Hash("key")}
 	hmap.Insert(node)
 
 	deleteNode := hmap.Pop(node, EntryEq)
@@ -65,7 +67,7 @@ func TestHMapDelete(t *testing.T) {
 
 func TestHMaoDestroy(t *testing.T) {
 	hmap := NewHMap()
-	node := &HNode{hcode: hash("key")}
+	node := &HNode{hcode: utils.Hash("key")}
 	hmap.Insert(node)
 
 	hmap.Destroy()
@@ -82,7 +84,7 @@ func TestHMapResizing(t *testing.T) {
 	hmap := NewHMap()
 
 	for i := 0; i < 10; i++ {
-		node := &HNode{hcode: hash("key" + strconv.Itoa(i))}
+		node := &HNode{hcode: utils.Hash("key" + strconv.Itoa(i))}
 		hmap.Insert(node)
 	}
 

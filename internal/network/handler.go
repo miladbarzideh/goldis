@@ -8,6 +8,7 @@ import (
 
 	"github.com/miladbarzideh/goldis/internal/command"
 	"github.com/miladbarzideh/goldis/internal/datastore"
+	"github.com/miladbarzideh/goldis/utils"
 )
 
 const idleTimeout = 10 * time.Second
@@ -186,5 +187,5 @@ func listEq(node1, node2 *datastore.LNode) bool {
 }
 
 func getConnection(node *datastore.LNode) *Connection {
-	return (*Connection)(unsafe.Pointer(uintptr(unsafe.Pointer(node)) - unsafe.Offsetof(Connection{}.idleNode)))
+	return (*Connection)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(Connection{}.idleNode)))
 }

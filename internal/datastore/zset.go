@@ -5,6 +5,8 @@ import (
 	"log"
 	"strings"
 	"unsafe"
+
+	"github.com/miladbarzideh/goldis/utils"
 )
 
 type ZSet struct {
@@ -28,7 +30,7 @@ func NewZSet() *ZSet {
 
 func NewZNode(name string, score float64) *ZNode {
 	return &ZNode{
-		hmap:  HNode{hcode: hash(name)},
+		hmap:  HNode{hcode: utils.Hash(name)},
 		tree:  AVLNode{count: 1},
 		score: score,
 		name:  name,
@@ -69,7 +71,7 @@ func (zset *ZSet) Lookup(name string) *ZNode {
 	if found == nil {
 		return nil
 	}
-	return (*ZNode)(containerOf(unsafe.Pointer(found), unsafe.Offsetof(ZNode{}.hmap)))
+	return (*ZNode)(utils.ContainerOf(unsafe.Pointer(found), unsafe.Offsetof(ZNode{}.hmap)))
 }
 
 func (zset *ZSet) Pop(name string) *ZNode {
@@ -82,7 +84,7 @@ func (zset *ZSet) Pop(name string) *ZNode {
 		return nil
 	}
 
-	node := (*ZNode)(containerOf(unsafe.Pointer(found), unsafe.Offsetof(ZNode{}.hmap)))
+	node := (*ZNode)(utils.ContainerOf(unsafe.Pointer(found), unsafe.Offsetof(ZNode{}.hmap)))
 	zset.tree.Remove(&node.tree, avlEntryEq)
 	return node
 }
@@ -95,7 +97,7 @@ func (zset *ZSet) Show() string {
 func printHashtable(nodes []*HNode) {
 	log.Print("Hashtable name-score pair:\n")
 	for _, node := range nodes {
-		entry := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.hmap)))
+		entry := (*ZNode)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.hmap)))
 		log.Printf("%v => %v", entry.name, entry.score)
 	}
 }
@@ -104,7 +106,7 @@ func printTreeNode(nodes []*AVLNode) string {
 	log.Print("AVL Tree Inorder Traversal:\n")
 	res := strings.Builder{}
 	for i, node := range nodes {
-		entry := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
+		entry := (*ZNode)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
 		sn := fmt.Sprintf("%v) %v => %v\n", i+1, entry.score, entry.name)
 		log.Printf(sn)
 		res.WriteString(sn)
@@ -126,7 +128,7 @@ func (zset *ZSet) Query(score float64, name string, offset int32, limit uint32) 
 
 	if found != nil {
 		node := zset.tree.Offset(found, offset)
-		znode := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
+		znode := (*ZNode)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
 		res := make([]*ZNode, 0)
 		n := uint32(0)
 		for znode != nil && n < limit {
@@ -135,7 +137,7 @@ func (zset *ZSet) Query(score float64, name string, offset int32, limit uint32) 
 			if node == nil {
 				break
 			}
-			znode = (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
+			znode = (*ZNode)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
 			n++
 		}
 		return res
@@ -156,7 +158,7 @@ type HKey struct {
 
 func newHKey(name string) *HKey {
 	return &HKey{
-		node: HNode{hcode: hash(name)},
+		node: HNode{hcode: utils.Hash(name)},
 		name: name,
 	}
 }
@@ -165,14 +167,14 @@ func entryEq(key, node *HNode) bool {
 	if node.hcode != key.hcode {
 		return false
 	}
-	znode := (*ZNode)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.hmap)))
-	hkey := (*HKey)(containerOf(unsafe.Pointer(key), unsafe.Offsetof(HKey{}.node)))
+	znode := (*ZNode)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.hmap)))
+	hkey := (*HKey)(utils.ContainerOf(unsafe.Pointer(key), unsafe.Offsetof(HKey{}.node)))
 	return znode.name == hkey.name
 }
 
 // zless compare by the (score, name) tuple
 func zless(lhs *AVLNode, score float64, name string) bool {
-	zl := (*ZNode)(containerOf(unsafe.Pointer(lhs), unsafe.Offsetof(ZNode{}.tree)))
+	zl := (*ZNode)(utils.ContainerOf(unsafe.Pointer(lhs), unsafe.Offsetof(ZNode{}.tree)))
 	if zl.score != score {
 		return zl.score < score
 	}
@@ -180,8 +182,8 @@ func zless(lhs *AVLNode, score float64, name string) bool {
 }
 
 func avlEntryEq(l, r *AVLNode) int {
-	le := (*ZNode)(containerOf(unsafe.Pointer(l), unsafe.Offsetof(ZNode{}.tree)))
-	re := (*ZNode)(containerOf(unsafe.Pointer(r), unsafe.Offsetof(ZNode{}.tree)))
+	le := (*ZNode)(utils.ContainerOf(unsafe.Pointer(l), unsafe.Offsetof(ZNode{}.tree)))
+	re := (*ZNode)(utils.ContainerOf(unsafe.Pointer(r), unsafe.Offsetof(ZNode{}.tree)))
 	if le.score > re.score {
 		return 1
 	} else if le.score < re.score {

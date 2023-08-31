@@ -5,6 +5,8 @@ import (
 	"log"
 	"strings"
 	"unsafe"
+
+	"github.com/miladbarzideh/goldis/utils"
 )
 
 const (
@@ -30,7 +32,7 @@ func (ds *DataStore) Get(key string) string {
 	if node == nil {
 		return resNil
 	}
-	return (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node))).value
+	return (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node))).value
 }
 
 func (ds *DataStore) Set(key string, value string) string {
@@ -38,7 +40,7 @@ func (ds *DataStore) Set(key string, value string) string {
 	node := ds.db.Lookup(&entry.node, EntryEq)
 	//update the value
 	if node != nil {
-		(*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node))).value = value
+		(*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node))).value = value
 	} else {
 		entry.value = value
 		ds.db.Insert(&entry.node)
@@ -61,7 +63,7 @@ func (ds *DataStore) Keys() string {
 	log.Print("Hashtable key-value pairs:\n")
 	res := strings.Builder{}
 	for i, node := range nodes {
-		entry := (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+		entry := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
 		kv := fmt.Sprintf("%v) %s => %s\n", i+1, entry.key, entry.value)
 		log.Printf(kv)
 		res.WriteString(kv)
@@ -78,7 +80,7 @@ func (ds *DataStore) ZAdd(key string, score float64, name string) string {
 		entry.zset = NewZSet()
 		ds.db.Insert(&entry.node)
 	} else {
-		entry = (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+		entry = (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
 		if entry.entryType != ZSET {
 			return errType
 		}
@@ -143,7 +145,7 @@ func (ds *DataStore) expect(key string) (bool, *MapEntry) {
 	if node == nil {
 		return false, nil
 	}
-	entry = (*MapEntry)(containerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+	entry = (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
 	if entry.entryType != ZSET {
 		return false, nil
 	}
@@ -167,14 +169,14 @@ type MapEntry struct {
 
 func NewMapEntry(key string, entryType EntryType) *MapEntry {
 	return &MapEntry{
-		node:      HNode{hcode: hash(key)},
+		node:      HNode{hcode: utils.Hash(key)},
 		key:       key,
 		entryType: entryType,
 	}
 }
 
 func EntryEq(lhs, rhs *HNode) bool {
-	le := (*MapEntry)(containerOf(unsafe.Pointer(lhs), unsafe.Offsetof(MapEntry{}.node)))
-	re := (*MapEntry)(containerOf(unsafe.Pointer(rhs), unsafe.Offsetof(MapEntry{}.node)))
+	le := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(lhs), unsafe.Offsetof(MapEntry{}.node)))
+	re := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(rhs), unsafe.Offsetof(MapEntry{}.node)))
 	return lhs.hcode == rhs.hcode && le.key == re.key
 }

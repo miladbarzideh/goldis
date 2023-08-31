@@ -1,5 +1,7 @@
 package datastore
 
+import "github.com/miladbarzideh/goldis/utils"
+
 // AVLTree (Height-balanced BST)
 type AVLTree struct {
 	root *AVLNode
@@ -211,7 +213,7 @@ func (node *AVLNode) update() {
 	if node == nil {
 		return
 	}
-	node.height = max(node.left.getHeight(), node.right.getHeight()) + 1
+	node.height = utils.Max(node.left.getHeight(), node.right.getHeight()) + 1
 	node.count = node.left.getCount() + node.right.getCount() + 1
 }
 
