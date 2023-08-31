@@ -4,23 +4,24 @@ import "github.com/miladbarzideh/goldis/utils"
 
 // AVLTree (Height-balanced BST)
 type AVLTree struct {
-	root *AVLNode
+	root       *AVLNode
+	comparator TreeComparator
 }
 
-func NewAVLTree() *AVLTree {
-	return &AVLTree{}
+func NewAVLTree(comparator TreeComparator) *AVLTree {
+	return &AVLTree{comparator: comparator}
 }
 
-func (t *AVLTree) Insert(node *AVLNode, cmp func(node1 *AVLNode, node2 *AVLNode) int) {
-	t.root = t.root.insert(node, cmp)
+func (t *AVLTree) Insert(node *AVLNode) {
+	t.root = t.root.insert(node, t.comparator)
 }
 
-func (t *AVLTree) Remove(node *AVLNode, cmp func(node1 *AVLNode, node2 *AVLNode) int) {
-	t.root = t.root.remove(node, cmp)
+func (t *AVLTree) Remove(node *AVLNode) {
+	t.root = t.root.remove(node, t.comparator)
 }
 
-func (t *AVLTree) Search(node *AVLNode, cmp func(node1 *AVLNode, node2 *AVLNode) int) *AVLNode {
-	return t.root.search(node, cmp)
+func (t *AVLTree) Search(node *AVLNode) *AVLNode {
+	return t.root.search(node, t.comparator)
 }
 
 func (t *AVLTree) Traverse() []*AVLNode {
@@ -53,7 +54,7 @@ type AVLNode struct {
 	parent *AVLNode
 }
 
-func (currNode *AVLNode) search(node *AVLNode, cmp func(node1 *AVLNode, node2 *AVLNode) int) *AVLNode {
+func (currNode *AVLNode) search(node *AVLNode, cmp TreeComparator) *AVLNode {
 	if currNode == nil {
 		return nil
 	}
@@ -66,7 +67,7 @@ func (currNode *AVLNode) search(node *AVLNode, cmp func(node1 *AVLNode, node2 *A
 	}
 }
 
-func (currNode *AVLNode) insert(node *AVLNode, cmp func(node1 *AVLNode, node2 *AVLNode) int) *AVLNode {
+func (currNode *AVLNode) insert(node *AVLNode, cmp TreeComparator) *AVLNode {
 	if currNode == nil {
 		return node
 	} else if cmp(node, currNode) > 0 {
@@ -82,7 +83,7 @@ func (currNode *AVLNode) insert(node *AVLNode, cmp func(node1 *AVLNode, node2 *A
 	return currNode.rebalance()
 }
 
-func (currNode *AVLNode) remove(node *AVLNode, cmp func(node1 *AVLNode, node2 *AVLNode) int) *AVLNode {
+func (currNode *AVLNode) remove(node *AVLNode, cmp TreeComparator) *AVLNode {
 	if currNode == nil {
 		return nil
 	}

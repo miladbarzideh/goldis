@@ -10,7 +10,7 @@ import (
 )
 
 func TestNewAVLTree(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 
 	if tree.root != nil {
 		t.Errorf("Expected root to be nil, got %v", tree.root)
@@ -18,10 +18,10 @@ func TestNewAVLTree(t *testing.T) {
 }
 
 func TestAVLTree_Insert(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 
 	entry := NewZNode("n1", 20)
-	tree.Insert(&entry.tree, avlEntryEq)
+	tree.Insert(&entry.tree)
 
 	if tree.root != &entry.tree {
 		t.Errorf("Expected root to be %v, got %v", tree.root, entry.tree)
@@ -29,13 +29,13 @@ func TestAVLTree_Insert(t *testing.T) {
 }
 
 func TestAVLTree_Search(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	entry1 := NewZNode("n1", 20)
 	entry2 := NewZNode("n2", 19)
-	tree.Insert(&entry1.tree, avlEntryEq)
-	tree.Insert(&entry2.tree, avlEntryEq)
+	tree.Insert(&entry1.tree)
+	tree.Insert(&entry2.tree)
 
-	foundNode := tree.Search(&entry2.tree, avlEntryEq)
+	foundNode := tree.Search(&entry2.tree)
 	if foundNode == nil {
 		t.Errorf("Expected found node to be %v, got nil", &entry2.tree)
 	}
@@ -45,13 +45,13 @@ func TestAVLTree_Search(t *testing.T) {
 }
 
 func TestAVLTree_RightRotate(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	entry1 := NewZNode("n1", 3)
 	entry2 := NewZNode("n2", 2)
 	entry3 := NewZNode("n3", 1)
-	tree.Insert(&entry1.tree, avlEntryEq)
-	tree.Insert(&entry2.tree, avlEntryEq)
-	tree.Insert(&entry3.tree, avlEntryEq)
+	tree.Insert(&entry1.tree)
+	tree.Insert(&entry2.tree)
+	tree.Insert(&entry3.tree)
 
 	h := tree.root.getHeight()
 	if h != 1 {
@@ -66,13 +66,13 @@ func TestAVLTree_RightRotate(t *testing.T) {
 }
 
 func TestAVLTree_LeftRotate(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	entry1 := NewZNode("n1", 1)
 	entry2 := NewZNode("n2", 2)
 	entry3 := NewZNode("n3", 3)
-	tree.Insert(&entry1.tree, avlEntryEq)
-	tree.Insert(&entry2.tree, avlEntryEq)
-	tree.Insert(&entry3.tree, avlEntryEq)
+	tree.Insert(&entry1.tree)
+	tree.Insert(&entry2.tree)
+	tree.Insert(&entry3.tree)
 
 	h := tree.root.getHeight()
 	if h != 1 {
@@ -87,13 +87,13 @@ func TestAVLTree_LeftRotate(t *testing.T) {
 }
 
 func TestAVLTree_DoubleLeftRotate(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	entry1 := NewZNode("n1", 7)
 	entry2 := NewZNode("n2", 9)
 	entry3 := NewZNode("n3", 6)
-	tree.Insert(&entry1.tree, avlEntryEq)
-	tree.Insert(&entry2.tree, avlEntryEq)
-	tree.Insert(&entry3.tree, avlEntryEq)
+	tree.Insert(&entry1.tree)
+	tree.Insert(&entry2.tree)
+	tree.Insert(&entry3.tree)
 
 	h := tree.root.getHeight()
 	if h != 1 {
@@ -108,13 +108,13 @@ func TestAVLTree_DoubleLeftRotate(t *testing.T) {
 }
 
 func TestAVLTree_DoubleRightRotate(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	entry1 := NewZNode("n1", 9)
 	entry2 := NewZNode("n2", 5)
 	entry3 := NewZNode("n3", 7)
-	tree.Insert(&entry1.tree, avlEntryEq)
-	tree.Insert(&entry2.tree, avlEntryEq)
-	tree.Insert(&entry3.tree, avlEntryEq)
+	tree.Insert(&entry1.tree)
+	tree.Insert(&entry2.tree)
+	tree.Insert(&entry3.tree)
 
 	h := tree.root.getHeight()
 	if h != 1 {
@@ -129,11 +129,11 @@ func TestAVLTree_DoubleRightRotate(t *testing.T) {
 }
 
 func TestAVLTree_RemoveRoot(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	entry := NewZNode("n1", 20)
-	tree.Insert(&entry.tree, avlEntryEq)
+	tree.Insert(&entry.tree)
 
-	tree.Remove(&entry.tree, avlEntryEq)
+	tree.Remove(&entry.tree)
 
 	if tree.root != nil {
 		t.Errorf("Expected root to be nil, got %v", tree.root)
@@ -141,13 +141,13 @@ func TestAVLTree_RemoveRoot(t *testing.T) {
 }
 
 func TestAVLTree_RemoveOneChild(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	entry1 := NewZNode("n1", 20)
 	entry2 := NewZNode("n2", 18)
-	tree.Insert(&entry1.tree, avlEntryEq)
-	tree.Insert(&entry2.tree, avlEntryEq)
+	tree.Insert(&entry1.tree)
+	tree.Insert(&entry2.tree)
 
-	tree.Remove(&entry1.tree, avlEntryEq)
+	tree.Remove(&entry1.tree)
 
 	if tree.root.getHeight() != 0 {
 		t.Errorf("Expected height to be 0, got %v", tree.root.getHeight())
@@ -155,19 +155,19 @@ func TestAVLTree_RemoveOneChild(t *testing.T) {
 }
 
 func TestAVLTree_RemoveTwoChild(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	entry1 := NewZNode("n1", 9)
 	entry2 := NewZNode("n2", 5)
 	entry3 := NewZNode("n3", 3)
 	entry4 := NewZNode("n4", 8)
-	tree.Insert(&entry1.tree, avlEntryEq)
-	tree.Insert(&entry2.tree, avlEntryEq)
-	tree.Insert(&entry3.tree, avlEntryEq)
-	tree.Insert(&entry4.tree, avlEntryEq)
+	tree.Insert(&entry1.tree)
+	tree.Insert(&entry2.tree)
+	tree.Insert(&entry3.tree)
+	tree.Insert(&entry4.tree)
 
-	tree.Remove(&entry2.tree, avlEntryEq)
+	tree.Remove(&entry2.tree)
 
-	foundNode := tree.Search(&entry2.tree, avlEntryEq)
+	foundNode := tree.Search(&entry2.tree)
 	if foundNode != nil {
 		t.Errorf("Expected foundNode to be nil, got %v", foundNode)
 	}
@@ -180,13 +180,13 @@ func TestAVLTree_RemoveTwoChild(t *testing.T) {
 }
 
 func TestAVLTree_Offset(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	entry1 := NewZNode("n1", 1)
 	entry2 := NewZNode("n2", 2)
 	entry3 := NewZNode("n3", 3)
-	tree.Insert(&entry1.tree, avlEntryEq)
-	tree.Insert(&entry2.tree, avlEntryEq)
-	tree.Insert(&entry3.tree, avlEntryEq)
+	tree.Insert(&entry1.tree)
+	tree.Insert(&entry2.tree)
+	tree.Insert(&entry3.tree)
 
 	node := tree.Offset(tree.root, 0)
 	znode := (*ZNode)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
@@ -196,7 +196,7 @@ func TestAVLTree_Offset(t *testing.T) {
 }
 
 func TestAVLTree_DisplayNodes(t *testing.T) {
-	tree := NewAVLTree()
+	tree := NewAVLTree(AVLTreeComparator)
 	nums := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	s := rand.NewSource(time.Now().Unix())
 	r := rand.New(s)
@@ -204,7 +204,7 @@ func TestAVLTree_DisplayNodes(t *testing.T) {
 	for range nums {
 		n := nums[r.Intn(len(nums))]
 		entry := NewZNode("name", float64(n))
-		tree.Insert(&entry.tree, avlEntryEq)
+		tree.Insert(&entry.tree)
 	}
 	tree.Traverse()
 }

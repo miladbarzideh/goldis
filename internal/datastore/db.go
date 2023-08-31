@@ -22,13 +22,13 @@ type DataStore struct {
 
 func NewDataStore() *DataStore {
 	return &DataStore{
-		db: NewHMap(),
+		db: NewHMap(MapEntryComparator),
 	}
 }
 
 func (ds *DataStore) Get(key string) string {
 	entry := NewMapEntry(key, STR)
-	node := ds.db.Lookup(&entry.node, EntryEq)
+	node := ds.db.Lookup(&entry.node)
 	if node == nil {
 		return resNil
 	}
@@ -37,7 +37,7 @@ func (ds *DataStore) Get(key string) string {
 
 func (ds *DataStore) Set(key string, value string) string {
 	entry := NewMapEntry(key, STR)
-	node := ds.db.Lookup(&entry.node, EntryEq)
+	node := ds.db.Lookup(&entry.node)
 	//update the value
 	if node != nil {
 		(*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node))).value = value
@@ -50,7 +50,7 @@ func (ds *DataStore) Set(key string, value string) string {
 
 func (ds *DataStore) Delete(key string) string {
 	entry := NewMapEntry(key, STR)
-	node := ds.db.Pop(&entry.node, EntryEq)
+	node := ds.db.Pop(&entry.node)
 	if node != nil {
 		//containerOf(node) = nil
 		return resOK
@@ -74,7 +74,7 @@ func (ds *DataStore) Keys() string {
 // ZAdd command pattern: zadd zset score name
 func (ds *DataStore) ZAdd(key string, score float64, name string) string {
 	entry := NewMapEntry(key, ZSET)
-	node := ds.db.Lookup(&entry.node, EntryEq)
+	node := ds.db.Lookup(&entry.node)
 	//update the value
 	if node == nil {
 		entry.zset = NewZSet()
@@ -141,7 +141,7 @@ func (ds *DataStore) ZShow(key string) string {
 
 func (ds *DataStore) expect(key string) (bool, *MapEntry) {
 	entry := NewMapEntry(key, ZSET)
-	node := ds.db.Lookup(&entry.node, EntryEq)
+	node := ds.db.Lookup(&entry.node)
 	if node == nil {
 		return false, nil
 	}
@@ -173,10 +173,4 @@ func NewMapEntry(key string, entryType EntryType) *MapEntry {
 		key:       key,
 		entryType: entryType,
 	}
-}
-
-func EntryEq(lhs, rhs *HNode) bool {
-	le := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(lhs), unsafe.Offsetof(MapEntry{}.node)))
-	re := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(rhs), unsafe.Offsetof(MapEntry{}.node)))
-	return lhs.hcode == rhs.hcode && le.key == re.key
 }

@@ -23,8 +23,8 @@ type ZNode struct {
 
 func NewZSet() *ZSet {
 	return &ZSet{
-		hmap: NewHMap(),
-		tree: NewAVLTree(),
+		hmap: NewHMap(ZNodeComparator),
+		tree: NewAVLTree(AVLTreeComparator),
 	}
 }
 
@@ -42,7 +42,7 @@ func (zset *ZSet) Add(name string, score float64) bool {
 	if node == nil {
 		node = NewZNode(name, score)
 		zset.hmap.Insert(&node.hmap)
-		zset.tree.Insert(&node.tree, avlEntryEq)
+		zset.tree.Insert(&node.tree)
 		return true
 	} else {
 		zset.update(node, score)
@@ -54,12 +54,12 @@ func (zset *ZSet) update(node *ZNode, score float64) {
 	if node.score == score {
 		return
 	}
-	zset.tree.Remove(&node.tree, avlEntryEq)
+	zset.tree.Remove(&node.tree)
 	key := newHKey(node.name)
-	zset.hmap.Pop(&key.node, entryEq)
+	zset.hmap.Pop(&key.node)
 	newNode := NewZNode(node.name, score)
 	zset.hmap.Insert(&newNode.hmap)
-	zset.tree.Insert(&newNode.tree, avlEntryEq)
+	zset.tree.Insert(&newNode.tree)
 }
 
 func (zset *ZSet) Lookup(name string) *ZNode {
@@ -67,7 +67,7 @@ func (zset *ZSet) Lookup(name string) *ZNode {
 		return nil
 	}
 	key := newHKey(name)
-	found := zset.hmap.Lookup(&key.node, entryEq)
+	found := zset.hmap.Lookup(&key.node)
 	if found == nil {
 		return nil
 	}
@@ -79,13 +79,13 @@ func (zset *ZSet) Pop(name string) *ZNode {
 		return nil
 	}
 	key := newHKey(name)
-	found := zset.hmap.Pop(&key.node, entryEq)
+	found := zset.hmap.Pop(&key.node)
 	if found == nil {
 		return nil
 	}
 
 	node := (*ZNode)(utils.ContainerOf(unsafe.Pointer(found), unsafe.Offsetof(ZNode{}.hmap)))
-	zset.tree.Remove(&node.tree, avlEntryEq)
+	zset.tree.Remove(&node.tree)
 	return node
 }
 
@@ -163,15 +163,6 @@ func newHKey(name string) *HKey {
 	}
 }
 
-func entryEq(key, node *HNode) bool {
-	if node.hcode != key.hcode {
-		return false
-	}
-	znode := (*ZNode)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.hmap)))
-	hkey := (*HKey)(utils.ContainerOf(unsafe.Pointer(key), unsafe.Offsetof(HKey{}.node)))
-	return znode.name == hkey.name
-}
-
 // zless compare by the (score, name) tuple
 func zless(lhs *AVLNode, score float64, name string) bool {
 	zl := (*ZNode)(utils.ContainerOf(unsafe.Pointer(lhs), unsafe.Offsetof(ZNode{}.tree)))
@@ -179,20 +170,4 @@ func zless(lhs *AVLNode, score float64, name string) bool {
 		return zl.score < score
 	}
 	return zl.name < name
-}
-
-func avlEntryEq(l, r *AVLNode) int {
-	le := (*ZNode)(utils.ContainerOf(unsafe.Pointer(l), unsafe.Offsetof(ZNode{}.tree)))
-	re := (*ZNode)(utils.ContainerOf(unsafe.Pointer(r), unsafe.Offsetof(ZNode{}.tree)))
-	if le.score > re.score {
-		return 1
-	} else if le.score < re.score {
-		return -1
-	}
-	if le.name < re.name {
-		return 1
-	} else if le.name > re.name {
-		return -1
-	}
-	return 0
 }

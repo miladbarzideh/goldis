@@ -21,6 +21,7 @@ type HMap struct {
 	tab1        HTab
 	tab2        HTab
 	resizingPos uint64
+	comparator  MapComparator
 }
 
 func initHTab(htab *HTab, n uint64) {
@@ -36,7 +37,7 @@ func (htab *HTab) insert(node *HNode) {
 	htab.size++
 }
 
-func (htab *HTab) lookup(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) **HNode {
+func (htab *HTab) lookup(key *HNode, cmp MapComparator) **HNode {
 	if htab.tab == nil || htab.size == 0 {
 		return nil
 	}
@@ -80,17 +81,18 @@ func (htab *HTab) keys() []*HNode {
 	return nodes
 }
 
-func NewHMap() *HMap {
+func NewHMap(comparator MapComparator) *HMap {
 	hmap := HMap{}
 	initHTab(&hmap.tab1, bucketSize)
+	hmap.comparator = comparator
 	return &hmap
 }
 
-func (hmap *HMap) Lookup(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) *HNode {
+func (hmap *HMap) Lookup(key *HNode) *HNode {
 	hmap.helpResizing()
-	node := hmap.tab1.lookup(key, cmp)
+	node := hmap.tab1.lookup(key, hmap.comparator)
 	if node == nil {
-		node = hmap.tab2.lookup(key, cmp)
+		node = hmap.tab2.lookup(key, hmap.comparator)
 	}
 	if node != nil {
 		return *node
@@ -109,13 +111,13 @@ func (hmap *HMap) Insert(node *HNode) {
 	hmap.helpResizing()
 }
 
-func (hmap *HMap) Pop(key *HNode, cmp func(node1 *HNode, node2 *HNode) bool) *HNode {
+func (hmap *HMap) Pop(key *HNode) *HNode {
 	hmap.helpResizing()
-	node := hmap.tab1.lookup(key, cmp)
+	node := hmap.tab1.lookup(key, hmap.comparator)
 	if node != nil {
 		return hmap.tab1.detach(node)
 	}
-	node = hmap.tab2.lookup(key, cmp)
+	node = hmap.tab2.lookup(key, hmap.comparator)
 	if node != nil {
 		return hmap.tab2.detach(node)
 	}
