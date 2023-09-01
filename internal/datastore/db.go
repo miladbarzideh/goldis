@@ -32,6 +32,7 @@ func NewDataStore() *DataStore {
 }
 
 func (ds *DataStore) Get(key string) string {
+	ds.RemoveExpiredKeys()
 	entry := NewMapEntry(key, STR)
 	node := ds.db.Lookup(&entry.node)
 	if node == nil {
@@ -190,6 +191,22 @@ func (ds *DataStore) setEntryTtl(entry *MapEntry, ttl int64) {
 		} else {
 			ds.heap.Update(entry.heapIndex, expireTime)
 		}
+	}
+}
+
+func (ds *DataStore) RemoveExpiredKeys() {
+	now := time.Now().UnixMilli()
+	works := 0
+	for ds.heap.Get(0) != nil && ds.heap.Get(0).value < now {
+		ref := ds.heap.Get(0).ref
+		entry := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(ref), unsafe.Offsetof(MapEntry{}.heapIndex)))
+		ds.heap.Remove(0)
+		ds.db.Pop(&entry.node)
+		if works > maxWorks {
+			// don't stall the server if too many keys are expiring at once
+			break
+		}
+		works++
 	}
 }
 
