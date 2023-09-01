@@ -50,9 +50,9 @@ func TestMinHeap_Remove(t *testing.T) {
 	h.Insert(HeapItem{value: 9, ref: &index3})
 	h.Insert(HeapItem{value: 1, ref: &index4})
 
-	h.Remove(1)
+	h.Remove(0)
 
-	expected := []int64{1, 5, 9}
+	expected := []int64{2, 5, 9}
 	for i, value := range expected {
 		if value != h.Get(int32(i)).value {
 			t.Errorf("Expected value %d at index %d, got %d", value, i, h.Get(int32(i)).value)
