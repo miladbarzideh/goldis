@@ -14,6 +14,7 @@ func NewMinHeap() *MinHeap {
 }
 
 func (h *MinHeap) Insert(item HeapItem) {
+	*item.ref = int32(len(h.heap))
 	h.heap = append(h.heap, item)
 	h.heapUp(int32(len(h.heap) - 1))
 }
@@ -45,7 +46,7 @@ func (h *MinHeap) heapUp(i int32) {
 	t := h.heap[i]
 	if i > 0 && t.value < h.heap[parent(i)].value {
 		h.heap[i], h.heap[parent(i)] = h.heap[parent(i)], h.heap[i]
-		*h.heap[i].ref = i
+		*h.heap[i].ref, *h.heap[parent(i)].ref = i, parent(i)
 		h.heapUp(parent(i))
 	}
 }
@@ -55,7 +56,6 @@ func (h *MinHeap) heapDown(i int32) {
 	if length == 0 {
 		return
 	}
-	t := h.heap[i]
 	minIndex := i
 	if left(i) < length && h.heap[left(i)].value < h.heap[minIndex].value {
 		minIndex = left(i)
@@ -68,8 +68,6 @@ func (h *MinHeap) heapDown(i int32) {
 		*h.heap[i].ref = i
 		h.heapDown(minIndex)
 	}
-	h.heap[i] = t
-	*h.heap[i].ref = i
 }
 
 func parent(i int32) int32 {
