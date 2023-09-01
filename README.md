@@ -32,26 +32,27 @@ To get started with the project, follow these steps:
 2. GET: `GET key`
 3. DEL: `DEL key`
 4. KEYS: `KEYS`
-5. ZADD: `ZADD key 20 name`
-6. ZSCORE: `ZSCORE key name`
-7. ZREM: `ZREM key name`
-8. ZQUERY: `ZQUERY key 18 name 0 10`
-9. ZSHOW: `ZSHOW key`
+5. PEXPIRE: `PEXPIRE key 10000` (ms)
+6. PTTL: `PTTL key`
+7. ZADD: `ZADD key 20 name`
+8. ZSCORE: `ZSCORE key name`
+9. ZREM: `ZREM key name`
+10. ZQUERY: `ZQUERY key 18 name 0 10`
+11. ZSHOW: `ZSHOW key`
 
 ## Concepts Explored
 
 Throughout the development of this project, the following key concepts were explored and implemented:
 
-| Concepts Explored   |            Implemented Features             |    Further Steps |
-|---------------------|:-------------------------------------------:|-----------------:|
-| Network programming |         Nonblocking IO, Event loop          | Protocol parsing |
-| Hashtable           | Hashtable, Chaining, Resizing, Intrusive DS |                  |
-| Data Serialization  |                     WIP                     |                  |
-| AVL Tree            |                Intrusive DS                 |                  |
-| Sorted Set          |            Hashtable + AVL Tree             |        Skip List |
-| Timers              |          Kick out idle connections          |                  |
-| Heap and TTL        |                     WIP                     |                  |
-| Thread Pool         |                     WIP                     |                  |
+| Concepts Explored   |            Implemented Features             |                               Further Steps |
+|---------------------|:-------------------------------------------:|--------------------------------------------:|
+| Network programming |         Nonblocking IO, Event loop          |                            Protocol parsing |
+| Hashtable           | Hashtable, Chaining, Resizing, Intrusive DS |                                             |
+| AVL Tree            |                Intrusive DS                 |                                             |
+| Sorted Set          |            Hashtable + AVL Tree             |                                   Skip List |
+| Timers              |          Kick out idle connections          |                                             |
+| Heap and TTL        |              TTL with Min Heap              | Remove expired keys while processing timers |
+| Thread Pool         |                     WIP                     |                                             |
 
 ## Contributing
 
