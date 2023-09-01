@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 	"unsafe"
 
 	"github.com/miladbarzideh/goldis/utils"
@@ -16,13 +17,17 @@ const (
 	errType = "(error) ERR expect zset"
 )
 
+const maxWorks = 200
+
 type DataStore struct {
-	db *HMap
+	db   *HMap
+	heap *MinHeap
 }
 
 func NewDataStore() *DataStore {
 	return &DataStore{
-		db: NewHMap(MapEntryComparator),
+		db:   NewHMap(MapEntryComparator),
+		heap: NewMinHeap(),
 	}
 }
 
@@ -53,6 +58,8 @@ func (ds *DataStore) Delete(key string) string {
 	node := ds.db.Pop(&entry.node)
 	if node != nil {
 		//containerOf(node) = nil
+		entry := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+		ds.setEntryTtl(entry, -1)
 		return resOK
 	}
 	return resKO
@@ -139,6 +146,53 @@ func (ds *DataStore) ZShow(key string) string {
 	return entry.zset.Show()
 }
 
+func (ds *DataStore) Expire(key string, ttl int64) string {
+	entry := NewMapEntry(key, STR)
+	node := ds.db.Lookup(&entry.node)
+	if node == nil {
+		return resNil
+	}
+	entry = (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+	ds.setEntryTtl(entry, ttl)
+	return resOK
+}
+
+func (ds *DataStore) Ttl(key string) string {
+	entry := NewMapEntry(key, STR)
+	node := ds.db.Lookup(&entry.node)
+	if node == nil {
+		return resNil
+	}
+	entry = (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
+	heapIndex := entry.heapIndex
+	if heapIndex == -1 {
+		return resNil
+	}
+	item := ds.heap.Get(entry.heapIndex)
+	now := time.Now().UnixMilli()
+	expireAt := int64(0)
+	if item.value > now {
+		expireAt = item.value - now
+	}
+	return fmt.Sprintf("(int) %v", expireAt)
+}
+
+func (ds *DataStore) setEntryTtl(entry *MapEntry, ttl int64) {
+	if ttl < 0 && entry.heapIndex != -1 {
+		ds.heap.Remove(entry.heapIndex)
+		entry.heapIndex = -1
+	} else if ttl > 0 {
+		now := time.Now().UnixMilli()
+		expireTime := now + ttl
+		if entry.heapIndex == -1 {
+			item := HeapItem{value: expireTime, ref: &entry.heapIndex}
+			ds.heap.Insert(item)
+		} else {
+			ds.heap.Update(entry.heapIndex, expireTime)
+		}
+	}
+}
+
 func (ds *DataStore) expect(key string) (bool, *MapEntry) {
 	entry := NewMapEntry(key, ZSET)
 	node := ds.db.Lookup(&entry.node)
@@ -165,6 +219,7 @@ type MapEntry struct {
 	key       string
 	value     string
 	entryType EntryType
+	heapIndex int32
 }
 
 func NewMapEntry(key string, entryType EntryType) *MapEntry {
@@ -172,5 +227,6 @@ func NewMapEntry(key string, entryType EntryType) *MapEntry {
 		node:      HNode{hcode: utils.Hash(key)},
 		key:       key,
 		entryType: entryType,
+		heapIndex: -1,
 	}
 }
