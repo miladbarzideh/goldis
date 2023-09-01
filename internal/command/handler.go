@@ -19,6 +19,8 @@ const (
 	zscoreCommand  = "zscore"
 	zqueryCommand  = "zquery"
 	zshowCommand   = "zshow"
+	expireCommand  = "pexpire"
+	ttlCommand     = "pttl"
 	syntaxErrorMsg = "(error) ERR syntax error"
 )
 
@@ -72,7 +74,14 @@ func (h *Handler) Execute(input string) string {
 		return h.dataSource.ZQuery(args[0], score, args[2], int32(uint32(offset)), uint32(limit))
 	case strings.EqualFold(command, zshowCommand) && len(args) == 1:
 		return h.dataSource.ZShow(args[0])
-
+	case strings.EqualFold(command, expireCommand) && len(args) == 2:
+		ttl, err := strconv.Atoi(args[1])
+		if err != nil {
+			return syntaxErrorMsg
+		}
+		return h.dataSource.Expire(args[0], int64(ttl))
+	case strings.EqualFold(command, ttlCommand) && len(args) == 1:
+		return h.dataSource.Ttl(args[0])
 	}
 	return syntaxErrorMsg
 }
