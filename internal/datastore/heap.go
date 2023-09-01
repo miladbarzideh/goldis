@@ -31,6 +31,7 @@ func (h *MinHeap) Update(i int32, value int64) {
 func (h *MinHeap) Remove(i int32) {
 	lastIndex := len(h.heap) - 1
 	h.heap[i] = h.heap[lastIndex]
+	*h.heap[i].ref = i
 	h.heap = h.heap[:lastIndex]
 	h.heapDown(i)
 }
@@ -65,7 +66,7 @@ func (h *MinHeap) heapDown(i int32) {
 	}
 	if minIndex != i {
 		h.heap[i], h.heap[minIndex] = h.heap[minIndex], h.heap[i]
-		*h.heap[i].ref = i
+		*h.heap[i].ref, *h.heap[minIndex].ref = i, minIndex
 		h.heapDown(minIndex)
 	}
 }
