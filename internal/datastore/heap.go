@@ -48,8 +48,6 @@ func (h *MinHeap) heapUp(i int32) {
 		*h.heap[i].ref = i
 		h.heapUp(parent(i))
 	}
-	h.heap[i] = t
-	*h.heap[i].ref = i
 }
 
 func (h *MinHeap) heapDown(i int32) {
