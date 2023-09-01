@@ -11,7 +11,7 @@ import (
 	"github.com/miladbarzideh/goldis/utils"
 )
 
-const idleTimeout = 10 * time.Second
+const idleTimeout = 60 * time.Second
 
 // ConnectionHandler handles the connection management logic
 type ConnectionHandler struct {
