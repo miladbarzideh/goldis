@@ -3,87 +3,65 @@ package command
 import (
 	"log"
 	"regexp"
-	"strconv"
-	"strings"
 
+	"github.com/miladbarzideh/goldis/internal/command/actions"
 	"github.com/miladbarzideh/goldis/internal/datastore"
 )
 
 const (
-	getCommand     = "get"
-	setCommand     = "set"
-	delCommand     = "del"
-	keysCommand    = "keys"
-	zaddCommand    = "zadd"
-	zremCommand    = "zrem"
-	zscoreCommand  = "zscore"
-	zqueryCommand  = "zquery"
-	zshowCommand   = "zshow"
-	expireCommand  = "pexpire"
-	ttlCommand     = "pttl"
-	syntaxErrorMsg = "(error) ERR syntax error"
+	getCommand    = "get"
+	setCommand    = "set"
+	delCommand    = "del"
+	keysCommand   = "keys"
+	zaddCommand   = "zadd"
+	zremCommand   = "zrem"
+	zscoreCommand = "zscore"
+	zqueryCommand = "zquery"
+	zshowCommand  = "zshow"
+	expireCommand = "pexpire"
+	ttlCommand    = "pttl"
 )
 
 type Handler struct {
 	dataSource *datastore.DataStore
+	commands   map[string]actions.Command
 }
 
 func NewHandler() *Handler {
-	return &Handler{dataSource: datastore.NewDataStore()}
+	ds := datastore.NewDataStore()
+	handler := &Handler{
+		dataSource: ds,
+		commands:   make(map[string]actions.Command),
+	}
+	handler.RegisterCommand(setCommand, actions.NewSetCommand(*ds))
+	handler.RegisterCommand(getCommand, actions.NewGetCommand(*ds))
+	handler.RegisterCommand(delCommand, actions.NewDelCommand(*ds))
+	handler.RegisterCommand(keysCommand, actions.NewKeysCommand(*ds))
+	handler.RegisterCommand(zaddCommand, actions.NewZAddCommand(*ds))
+	handler.RegisterCommand(zremCommand, actions.NewZRemCommand(*ds))
+	handler.RegisterCommand(zscoreCommand, actions.NewZScoreCommand(*ds))
+	handler.RegisterCommand(zqueryCommand, actions.NewZQueryCommand(*ds))
+	handler.RegisterCommand(zshowCommand, actions.NewZShowCommand(*ds))
+	handler.RegisterCommand(expireCommand, actions.NewExpireCommand(*ds))
+	handler.RegisterCommand(ttlCommand, actions.NewTTLCommand(*ds))
+	return handler
+}
+
+func (h *Handler) RegisterCommand(key string, command actions.Command) {
+	h.commands[key] = command
 }
 
 func (h *Handler) Execute(input string) string {
 	commandParts := extractCommandParts(input)
 	if commandParts == nil || len(commandParts) < 1 {
-		return syntaxErrorMsg
+		return actions.SyntaxErrorMsg
 	}
-	command, args := commandParts[0], commandParts[1:]
-	log.Printf("Command %s will be executed", command)
-	switch {
-	case strings.EqualFold(command, setCommand) && len(args) == 2:
-		return h.dataSource.Set(args[0], args[1])
-	case strings.EqualFold(command, getCommand) && len(args) == 1:
-		return h.dataSource.Get(args[0])
-	case strings.EqualFold(command, delCommand) && len(args) == 1:
-		return h.dataSource.Delete(args[0])
-	case strings.EqualFold(command, keysCommand):
-		return h.dataSource.Keys()
-	case strings.EqualFold(command, zaddCommand) && len(args) == 3:
-		score, err := strconv.ParseFloat(args[1], 64)
-		if err != nil {
-			return syntaxErrorMsg
-		}
-		return h.dataSource.ZAdd(args[0], score, args[2])
-	case strings.EqualFold(command, zremCommand) && len(args) == 2:
-		return h.dataSource.ZRemove(args[0], args[1])
-	case strings.EqualFold(command, zscoreCommand) && len(args) == 2:
-		return h.dataSource.ZScore(args[0], args[1])
-	case strings.EqualFold(command, zqueryCommand) && len(args) == 5:
-		score, err := strconv.ParseFloat(args[1], 64)
-		if err != nil {
-			return syntaxErrorMsg
-		}
-		offset, err := strconv.Atoi(args[3])
-		if err != nil {
-			return syntaxErrorMsg
-		}
-		limit, err := strconv.Atoi(args[4])
-		if err != nil {
-			return syntaxErrorMsg
-		}
-		return h.dataSource.ZQuery(args[0], score, args[2], int32(uint32(offset)), uint32(limit))
-	case strings.EqualFold(command, zshowCommand) && len(args) == 1:
-		return h.dataSource.ZShow(args[0])
-	case strings.EqualFold(command, expireCommand) && len(args) == 2:
-		ttl, err := strconv.Atoi(args[1])
-		if err != nil {
-			return syntaxErrorMsg
-		}
-		return h.dataSource.Expire(args[0], int64(ttl))
-	case strings.EqualFold(command, ttlCommand) && len(args) == 1:
-		return h.dataSource.Ttl(args[0])
+	commandKey, args := commandParts[0], commandParts[1:]
+	log.Printf("Command %s will be executed", commandKey)
+	if command, ok := h.commands[commandKey]; ok {
+		return command.Execute(args)
 	}
-	return syntaxErrorMsg
+	return actions.SyntaxErrorMsg
 }
 
 func extractCommandParts(input string) []string {
