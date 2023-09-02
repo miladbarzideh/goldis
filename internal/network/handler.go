@@ -71,6 +71,8 @@ func (cm *ConnectionHandler) processTimers() {
 		cm.destroyConnection(*connection)
 		cm.idleList.Detach(&connection.idleNode, listEq)
 	}
+
+	cm.dataStore.RemoveExpiredKeys()
 }
 
 func (cm *ConnectionHandler) nextTimer() syscall.Timeval {

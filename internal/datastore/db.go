@@ -32,7 +32,6 @@ func NewDataStore() *DataStore {
 }
 
 func (ds *DataStore) Get(key string) string {
-	ds.RemoveExpiredKeys()
 	entry := NewMapEntry(key, STR)
 	node := ds.db.Lookup(&entry.node)
 	if node == nil {
