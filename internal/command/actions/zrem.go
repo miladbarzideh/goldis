@@ -5,10 +5,10 @@ import (
 )
 
 type ZRemCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewZRemCommand(dataStore datastore.DataStore) *ZRemCommand {
+func NewZRemCommand(dataStore *datastore.DataStore) *ZRemCommand {
 	return &ZRemCommand{dataStore: dataStore}
 }
 

@@ -7,10 +7,10 @@ import (
 )
 
 type ExpireCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewExpireCommand(dataStore datastore.DataStore) *ExpireCommand {
+func NewExpireCommand(dataStore *datastore.DataStore) *ExpireCommand {
 	return &ExpireCommand{dataStore: dataStore}
 }
 

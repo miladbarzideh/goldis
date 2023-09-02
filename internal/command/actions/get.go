@@ -5,10 +5,10 @@ import (
 )
 
 type GetCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewGetCommand(dataStore datastore.DataStore) *GetCommand {
+func NewGetCommand(dataStore *datastore.DataStore) *GetCommand {
 	return &GetCommand{dataStore: dataStore}
 }
 

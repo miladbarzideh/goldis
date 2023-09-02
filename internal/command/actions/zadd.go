@@ -7,10 +7,10 @@ import (
 )
 
 type ZAddCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewZAddCommand(dataStore datastore.DataStore) *ZAddCommand {
+func NewZAddCommand(dataStore *datastore.DataStore) *ZAddCommand {
 	return &ZAddCommand{dataStore: dataStore}
 }
 

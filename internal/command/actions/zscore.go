@@ -5,10 +5,10 @@ import (
 )
 
 type ZScoreCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewZScoreCommand(dataStore datastore.DataStore) *ZScoreCommand {
+func NewZScoreCommand(dataStore *datastore.DataStore) *ZScoreCommand {
 	return &ZScoreCommand{dataStore: dataStore}
 }
 

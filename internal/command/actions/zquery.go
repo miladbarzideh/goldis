@@ -7,10 +7,10 @@ import (
 )
 
 type ZQueryCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewZQueryCommand(dataStore datastore.DataStore) *ZQueryCommand {
+func NewZQueryCommand(dataStore *datastore.DataStore) *ZQueryCommand {
 	return &ZQueryCommand{dataStore: dataStore}
 }
 

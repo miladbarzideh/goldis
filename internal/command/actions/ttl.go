@@ -5,10 +5,10 @@ import (
 )
 
 type TTLCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewTTLCommand(dataStore datastore.DataStore) *TTLCommand {
+func NewTTLCommand(dataStore *datastore.DataStore) *TTLCommand {
 	return &TTLCommand{dataStore: dataStore}
 }
 

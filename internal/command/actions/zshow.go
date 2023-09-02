@@ -5,10 +5,10 @@ import (
 )
 
 type ZShowCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewZShowCommand(dataStore datastore.DataStore) *ZShowCommand {
+func NewZShowCommand(dataStore *datastore.DataStore) *ZShowCommand {
 	return &ZShowCommand{dataStore: dataStore}
 }
 

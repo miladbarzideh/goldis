@@ -5,10 +5,10 @@ import (
 )
 
 type DelCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewDelCommand(dataStore datastore.DataStore) *DelCommand {
+func NewDelCommand(dataStore *datastore.DataStore) *DelCommand {
 	return &DelCommand{dataStore: dataStore}
 }
 

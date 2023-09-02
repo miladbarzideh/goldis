@@ -5,10 +5,10 @@ import (
 )
 
 type SetCommand struct {
-	dataStore datastore.DataStore
+	dataStore *datastore.DataStore
 }
 
-func NewSetCommand(dataStore datastore.DataStore) *SetCommand {
+func NewSetCommand(dataStore *datastore.DataStore) *SetCommand {
 	return &SetCommand{dataStore: dataStore}
 }
 
