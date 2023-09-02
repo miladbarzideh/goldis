@@ -27,23 +27,22 @@ type Executor struct {
 	commands   map[string]actions.Command
 }
 
-func NewExecutor() *Executor {
-	ds := datastore.NewDataStore()
+func NewExecutor(dataStore *datastore.DataStore) *Executor {
 	handler := &Executor{
-		dataSource: ds,
+		dataSource: dataStore,
 		commands:   make(map[string]actions.Command),
 	}
-	handler.RegisterCommand(setCommand, actions.NewSetCommand(*ds))
-	handler.RegisterCommand(getCommand, actions.NewGetCommand(*ds))
-	handler.RegisterCommand(delCommand, actions.NewDelCommand(*ds))
-	handler.RegisterCommand(keysCommand, actions.NewKeysCommand(*ds))
-	handler.RegisterCommand(zaddCommand, actions.NewZAddCommand(*ds))
-	handler.RegisterCommand(zremCommand, actions.NewZRemCommand(*ds))
-	handler.RegisterCommand(zscoreCommand, actions.NewZScoreCommand(*ds))
-	handler.RegisterCommand(zqueryCommand, actions.NewZQueryCommand(*ds))
-	handler.RegisterCommand(zshowCommand, actions.NewZShowCommand(*ds))
-	handler.RegisterCommand(expireCommand, actions.NewExpireCommand(*ds))
-	handler.RegisterCommand(ttlCommand, actions.NewTTLCommand(*ds))
+	handler.RegisterCommand(setCommand, actions.NewSetCommand(dataStore))
+	handler.RegisterCommand(getCommand, actions.NewGetCommand(dataStore))
+	handler.RegisterCommand(delCommand, actions.NewDelCommand(dataStore))
+	handler.RegisterCommand(keysCommand, actions.NewKeysCommand(dataStore))
+	handler.RegisterCommand(zaddCommand, actions.NewZAddCommand(dataStore))
+	handler.RegisterCommand(zremCommand, actions.NewZRemCommand(dataStore))
+	handler.RegisterCommand(zscoreCommand, actions.NewZScoreCommand(dataStore))
+	handler.RegisterCommand(zqueryCommand, actions.NewZQueryCommand(dataStore))
+	handler.RegisterCommand(zshowCommand, actions.NewZShowCommand(dataStore))
+	handler.RegisterCommand(expireCommand, actions.NewExpireCommand(dataStore))
+	handler.RegisterCommand(ttlCommand, actions.NewTTLCommand(dataStore))
 	return handler
 }
 

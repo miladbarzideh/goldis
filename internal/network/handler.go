@@ -21,6 +21,7 @@ type ConnectionHandler struct {
 	fdConn         FdConn
 	commandHandler *command.Executor
 	idleList       *datastore.DList
+	dataStore      *datastore.DataStore
 }
 
 // NewConnectionHandler creates a new instance of ConnectionManager
@@ -30,13 +31,15 @@ func NewConnectionHandler(socket *Socket) *ConnectionHandler {
 	fdZero(&activeFd)
 	fdSet(serverFd, &activeFd)
 	fdConn := FdConnInit()
+	dataStore := datastore.NewDataStore()
 	return &ConnectionHandler{
 		socket:         socket,
 		fdMax:          serverFd,
 		activeFd:       activeFd,
 		fdConn:         fdConn,
-		commandHandler: command.NewExecutor(),
+		commandHandler: command.NewExecutor(dataStore),
 		idleList:       datastore.NewDList(),
+		dataStore:      dataStore,
 	}
 }
 
