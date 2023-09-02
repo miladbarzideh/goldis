@@ -19,7 +19,7 @@ type ConnectionHandler struct {
 	fdMax          int
 	activeFd       syscall.FdSet
 	fdConn         FdConn
-	commandHandler *command.Handler
+	commandHandler *command.Executor
 	idleList       *datastore.DList
 }
 
@@ -35,7 +35,7 @@ func NewConnectionHandler(socket *Socket) *ConnectionHandler {
 		fdMax:          serverFd,
 		activeFd:       activeFd,
 		fdConn:         fdConn,
-		commandHandler: command.NewHandler(),
+		commandHandler: command.NewExecutor(),
 		idleList:       datastore.NewDList(),
 	}
 }

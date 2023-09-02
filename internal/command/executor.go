@@ -22,14 +22,14 @@ const (
 	ttlCommand    = "pttl"
 )
 
-type Handler struct {
+type Executor struct {
 	dataSource *datastore.DataStore
 	commands   map[string]actions.Command
 }
 
-func NewHandler() *Handler {
+func NewExecutor() *Executor {
 	ds := datastore.NewDataStore()
-	handler := &Handler{
+	handler := &Executor{
 		dataSource: ds,
 		commands:   make(map[string]actions.Command),
 	}
@@ -47,11 +47,11 @@ func NewHandler() *Handler {
 	return handler
 }
 
-func (h *Handler) RegisterCommand(key string, command actions.Command) {
+func (h *Executor) RegisterCommand(key string, command actions.Command) {
 	h.commands[key] = command
 }
 
-func (h *Handler) Execute(input string) string {
+func (h *Executor) Execute(input string) string {
 	commandParts := extractCommandParts(input)
 	if commandParts == nil || len(commandParts) < 1 {
 		return actions.SyntaxErrorMsg
