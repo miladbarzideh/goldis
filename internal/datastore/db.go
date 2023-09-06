@@ -54,12 +54,15 @@ func (ds *DataStore) Set(key string, value string) string {
 }
 
 func (ds *DataStore) Delete(key string) string {
-	entry := NewMapEntry(key, STR)
+	entry := NewMapEntry(key, ZSET)
 	node := ds.db.Pop(&entry.node)
 	if node != nil {
 		//containerOf(node) = nil
 		entry := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
 		ds.setEntryTtl(entry, -1)
+		if entry.entryType == ZSET {
+			entry.zset.Dispose()
+		}
 		return resOK
 	}
 	return resKO
