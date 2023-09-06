@@ -130,6 +130,10 @@ func (hmap *HMap) Keys() []*HNode {
 	return append(t1, t2...)
 }
 
+func (hmap *HMap) Size() int {
+	return hmap.tab1.size + hmap.tab2.size
+}
+
 func (hmap *HMap) Destroy() {
 	hmap.tab1.freeHTab()
 	hmap.tab2.freeHTab()
