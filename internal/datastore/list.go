@@ -7,7 +7,6 @@ type LNode struct {
 
 type DList struct {
 	head *LNode
-	tail *LNode
 }
 
 func NewDList() *DList {
@@ -22,13 +21,8 @@ func (dl *DList) Detach(node *LNode, cmp func(node1, node2 *LNode) bool) {
 	if dl.IsEmpty() {
 		return
 	}
-	if cmp(node, dl.head) && cmp(node, dl.tail) {
-		dl.head = nil
-		dl.tail = nil
-	} else if cmp(node, dl.head) {
+	if cmp(node, dl.head) {
 		dl.head = node.next
-	} else if cmp(node, dl.tail) {
-		dl.tail = node.previous
 	} else {
 		node.previous.next = node.next
 		node.next.previous = node.previous
@@ -44,7 +38,6 @@ func (dl *DList) GetHead() *LNode {
 func (dl *DList) InsertBefore(newNode *LNode) {
 	if dl.IsEmpty() {
 		dl.head = newNode
-		dl.tail = newNode
 	} else {
 		newNode.next = dl.head
 		dl.head.previous = newNode
