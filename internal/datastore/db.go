@@ -74,7 +74,11 @@ func (ds *DataStore) Keys() string {
 	res := strings.Builder{}
 	for i, node := range nodes {
 		entry := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
-		kv := fmt.Sprintf("%v) %s => %s\n", i+1, entry.key, entry.value)
+		value := entry.value
+		if entry.entryType == ZSET {
+			value = "ZSET"
+		}
+		kv := fmt.Sprintf("%v) %s => %s\n", i+1, entry.key, value)
 		log.Printf(kv)
 		res.WriteString(kv)
 	}
