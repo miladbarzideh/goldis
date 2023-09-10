@@ -68,7 +68,7 @@ func (cm *ConnectionHandler) processTimers() {
 		}
 		addrFrom := connection.Addr.(*syscall.SockaddrInet4)
 		log.Printf("Destroy idle connection %d:%d on socket %d\n", addrFrom.Addr, addrFrom.Port, connection.Fd)
-		cm.destroyConnection(*connection)
+		cm.destroyConnection(connection)
 		cm.idleList.Detach(&connection.idleNode, listEq)
 	}
 
@@ -92,19 +92,19 @@ func (cm *ConnectionHandler) nextTimer() syscall.Timeval {
 func (cm *ConnectionHandler) addConnection(connection *Connection) {
 	acceptedFd := connection.Fd
 	fdSet(acceptedFd, &cm.activeFd)
-	cm.fdConn.set(acceptedFd, *connection)
+	cm.fdConn.set(acceptedFd, connection)
 	if acceptedFd > cm.fdMax {
 		cm.fdMax = acceptedFd
 	}
 }
 
-func (cm *ConnectionHandler) destroyConnection(connection Connection) {
+func (cm *ConnectionHandler) destroyConnection(connection *Connection) {
 	fdClr(connection.Fd, &cm.activeFd)
 	cm.fdConn.clr(connection.Fd)
 	_ = connection.Close()
 }
 
-func (cm *ConnectionHandler) handleConnectionIO(connection Connection) {
+func (cm *ConnectionHandler) handleConnectionIO(connection *Connection) {
 	input, err := connection.Read()
 	if err != nil {
 		log.Println("Read(): ", err)
@@ -112,7 +112,7 @@ func (cm *ConnectionHandler) handleConnectionIO(connection Connection) {
 		return
 	}
 
-	cm.resetTimer(connection)
+	cm.resetTimer(*connection)
 
 	result := cm.commandHandler.Execute(input)
 
@@ -167,13 +167,13 @@ func fdClr(fd int, p *syscall.FdSet) {
 	p.Bits[fd/32] &^= 1 << (uint(fd) % 32)
 }
 
-type FdConn map[int]Connection
+type FdConn map[int]*Connection
 
 func FdConnInit() FdConn {
 	return make(FdConn, syscall.FD_SETSIZE)
 }
 
-func (f *FdConn) set(fd int, value Connection) {
+func (f *FdConn) set(fd int, value *Connection) {
 	(*f)[fd] = value
 }
 
