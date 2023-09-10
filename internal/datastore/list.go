@@ -25,7 +25,9 @@ func (dl *DList) Detach(node *LNode, cmp func(node1, node2 *LNode) bool) {
 		dl.head = node.next
 	} else {
 		node.previous.next = node.next
-		node.next.previous = node.previous
+		if node.next != nil {
+			node.next.previous = node.previous
+		}
 	}
 	node.next = nil
 	node.previous = nil
