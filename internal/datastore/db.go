@@ -19,7 +19,7 @@ const (
 
 const (
 	maxWorks           = 200
-	largeContainerSize = 1
+	largeContainerSize = 10000
 )
 
 type DataStore struct {
