@@ -17,7 +17,10 @@ const (
 	errType = "(error) ERR expect zset"
 )
 
-const maxWorks = 200
+const (
+	maxWorks           = 200
+	largeContainerSize = 1
+)
 
 type DataStore struct {
 	db   *HMap
@@ -60,12 +63,28 @@ func (ds *DataStore) Delete(key string) string {
 		//containerOf(node) = nil
 		entry := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
 		ds.setEntryTtl(entry, -1)
-		if entry.entryType == ZSET {
-			entry.zset.Dispose()
-		}
+		entryDel(entry)
 		return resOK
 	}
 	return resKO
+}
+
+func entryDel(entry *MapEntry) {
+	if entry.entryType == ZSET {
+		if entry.zset.hmap.Size() > largeContainerSize { //too big
+			log.Println("Perform async action to delete entry")
+			utils.GetThreadPoolInstance().ThreadPoolQueue(entryDelAsync(), entry)
+		} else {
+			entry.zset.Dispose()
+		}
+	}
+}
+
+func entryDelAsync() func(arg interface{}) {
+	return func(arg interface{}) {
+		entry := arg.(*MapEntry)
+		entry.zset.Dispose()
+	}
 }
 
 func (ds *DataStore) Keys() string {
