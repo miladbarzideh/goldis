@@ -15,7 +15,7 @@ jobs:
       - name: setup go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.20.6'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3.6.0
   test:
@@ -26,7 +26,7 @@ jobs:
       - name: setup go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.20.6'
       - name: test
         run: |
           go test -v -cover ./...
