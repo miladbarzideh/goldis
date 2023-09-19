@@ -44,10 +44,9 @@ func (zset *ZSet) Add(name string, score float64) bool {
 		zset.hmap.Insert(&node.hmap)
 		zset.tree.Insert(&node.tree)
 		return true
-	} else {
-		zset.update(node, score)
-		return false
 	}
+	zset.update(node, score)
+	return false
 }
 
 func (zset *ZSet) update(node *ZNode, score float64) {
