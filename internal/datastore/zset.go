@@ -107,7 +107,7 @@ func printTreeNode(nodes []*AVLNode) string {
 	for i, node := range nodes {
 		entry := (*ZNode)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(ZNode{}.tree)))
 		sn := fmt.Sprintf("%v) %v => %v\n", i+1, entry.score, entry.name)
-		log.Printf(sn)
+		log.Print(sn)
 		res.WriteString(sn)
 	}
 	return res.String()
