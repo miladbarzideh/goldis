@@ -46,7 +46,7 @@ func (ds *DataStore) Get(key string) string {
 func (ds *DataStore) Set(key string, value string) string {
 	entry := NewMapEntry(key, STR)
 	node := ds.db.Lookup(&entry.node)
-	//update the value
+	// update the value
 	if node != nil {
 		(*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node))).value = value
 	} else {
@@ -60,7 +60,7 @@ func (ds *DataStore) Delete(key string) string {
 	entry := NewMapEntry(key, ZSET)
 	node := ds.db.Pop(&entry.node)
 	if node != nil {
-		//containerOf(node) = nil
+		// containerOf(node) = nil
 		entry := (*MapEntry)(utils.ContainerOf(unsafe.Pointer(node), unsafe.Offsetof(MapEntry{}.node)))
 		ds.setEntryTtl(entry, -1)
 		entryDel(entry)
@@ -98,7 +98,7 @@ func (ds *DataStore) Keys() string {
 			value = "ZSET"
 		}
 		kv := fmt.Sprintf("%v) %s => %s\n", i+1, entry.key, value)
-		log.Printf(kv)
+		log.Print(kv)
 		res.WriteString(kv)
 	}
 	return res.String()
@@ -108,7 +108,7 @@ func (ds *DataStore) Keys() string {
 func (ds *DataStore) ZAdd(key string, score float64, name string) string {
 	entry := NewMapEntry(key, ZSET)
 	node := ds.db.Lookup(&entry.node)
-	//update the value
+	// update the value
 	if node == nil {
 		entry.zset = NewZSet()
 		ds.db.Insert(&entry.node)
@@ -130,10 +130,7 @@ func (ds *DataStore) ZRemove(key string, name string) string {
 		return resKO
 	}
 
-	node := entry.zset.Pop(name)
-	if node != nil {
-		node = &ZNode{}
-	}
+	entry.zset.Pop(name)
 	return resOK
 }
 
