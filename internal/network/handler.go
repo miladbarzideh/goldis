@@ -28,7 +28,6 @@ type ConnectionHandler struct {
 func NewConnectionHandler(socket *Socket) *ConnectionHandler {
 	serverFd := socket.Fd
 	var activeFd syscall.FdSet
-	fdZero(&activeFd)
 	fdSet(serverFd, &activeFd)
 	fdConn := FdConnInit()
 	dataStore := datastore.NewDataStore()
@@ -179,10 +178,6 @@ func (f *FdConn) set(fd int, value *Connection) {
 
 func (f *FdConn) clr(fd int) {
 	delete(*f, fd)
-}
-
-func fdZero(p *syscall.FdSet) {
-	p.Bits = [32]int32{}
 }
 
 func listEq(node1, node2 *datastore.LNode) bool {
