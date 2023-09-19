@@ -1,9 +1,7 @@
 package datastore
 
 import (
-	"math/rand"
 	"testing"
-	"time"
 	"unsafe"
 
 	"github.com/miladbarzideh/goldis/utils"
@@ -193,18 +191,4 @@ func TestAVLTree_Offset(t *testing.T) {
 	if znode.name != "n2" {
 		t.Errorf("Expected znode to be n2, got %v", znode.name)
 	}
-}
-
-func TestAVLTree_DisplayNodes(t *testing.T) {
-	tree := NewAVLTree(AVLTreeComparator)
-	nums := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	s := rand.NewSource(time.Now().Unix())
-	r := rand.New(s)
-
-	for range nums {
-		n := nums[r.Intn(len(nums))]
-		entry := NewZNode("name", float64(n))
-		tree.Insert(&entry.tree)
-	}
-	tree.Traverse()
 }
