@@ -48,7 +48,7 @@ func (cm *ConnectionHandler) StartServer() {
 	for {
 		activeFDSet := cm.getActiveFDSet()
 		timeout := cm.nextTimer()
-		err := syscall.Select(cm.fdMax+1, &activeFDSet, nil, nil, &timeout)
+		err := platformSpecificSelect(cm.fdMax+1, &activeFDSet, nil, nil, &timeout)
 		if err != nil {
 			log.Fatal("Select(): ", err)
 		}
