@@ -58,11 +58,12 @@ func (currNode *AVLNode) search(node *AVLNode, cmp TreeComparator) *AVLNode {
 	if currNode == nil {
 		return nil
 	}
-	if cmp(node, currNode) >= 1 {
+	switch {
+	case cmp(node, currNode) >= 1:
 		return currNode.right.search(node, cmp)
-	} else if cmp(node, currNode) <= -1 {
+	case cmp(node, currNode) <= -1:
 		return currNode.left.search(node, cmp)
-	} else { //cpm == 1
+	default:
 		return node
 	}
 }
@@ -87,19 +88,20 @@ func (currNode *AVLNode) remove(node *AVLNode, cmp TreeComparator) *AVLNode {
 	if currNode == nil {
 		return nil
 	}
-	if cmp(node, currNode) > 0 {
+	switch {
+	case cmp(node, currNode) > 0:
 		currNode.right = currNode.right.remove(node, cmp)
-	} else if cmp(node, currNode) < 0 {
+	case cmp(node, currNode) < 0:
 		currNode.left = currNode.left.remove(node, cmp)
-	} else if currNode.left == nil && currNode.right == nil {
+	case currNode.left == nil && currNode.right == nil:
 		currNode = nil
-	} else if currNode.left == nil {
+	case currNode.left == nil:
 		currNode.right.parent = currNode.parent
 		currNode = currNode.right
-	} else if currNode.right == nil {
+	case currNode.right == nil:
 		currNode.left.parent = currNode.parent
 		currNode = currNode.left
-	} else { //has two children
+	default: // has two children
 		inOrderSuccessor := currNode.right.findSmallest()
 		inOrderSuccessor.right = currNode.right.remove(inOrderSuccessor, cmp)
 		inOrderSuccessor.left = currNode.left
